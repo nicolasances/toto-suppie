@@ -1,0 +1,26 @@
+
+.title-bar {
+    display: flex;
+    flex-direction: row;
+    padding: 0 12px;
+    min-height: 54px;
+    max-height: 54px;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+
+.title {
+    flex: 1;
+    font-size: 18px;
+    text-align: center;
+}
+
+.title-bar .button-container {
+    margin: 0 12px;
+    width: 28px;
+}
+.title-bar .icon {
+    width: 24px;
+    height: 24px;
+}

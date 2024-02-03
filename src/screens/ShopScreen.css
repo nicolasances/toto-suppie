@@ -1,0 +1,14 @@
+
+.shopping-screen {
+    display: flex;
+    flex: 1;
+    overflow-y: scroll;
+    max-height: calc(100%);
+    scroll-behavior: smooth;
+}
+
+.shopping-screen .supermarkets {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}

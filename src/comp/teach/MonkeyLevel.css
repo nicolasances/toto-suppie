@@ -1,0 +1,44 @@
+/****************************************************
+ * TOTO SKILL LEVEL
+ ***************************************************/
+.toto-skill {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    color: var(--color-dark-primary);
+    margin: 24px;
+}
+
+.toto-skill svg {
+    fill: currentColor;
+    width: 48px;
+    height: auto;
+    margin-right: 24px;
+}
+.toto-skill .skill-name {
+    font-size: large;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: var(--color-text-light);
+}
+.toto-skill .skill-desc {
+    font-size: small;
+}
+
+/****************************************************
+ * MONKEY INTRO
+ ***************************************************/
+.monkey-intro {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    margin: 24px;
+    color: var(--color-dark-primary);
+}
+
+.monkey-intro svg {
+    fill: currentColor;
+    width: 48px;
+    height: auto;
+    margin-right: 24px;
+}

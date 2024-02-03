@@ -1,0 +1,22 @@
+I'm working with ReactJS using Typescript. 
+
+I have the following components available: 
+
+CheckBox: a component displaying a checkbox with the following props (delimited by """): 
+    """
+    export interface CheckBoxProps {
+        onToggleFlag: () => void,
+        flag: boolean
+        label?: string
+    }
+    """"
+
+I need you to build a function component called ListItem that follows these specs: 
+ - Uses flex-box
+ - Displays a box with className "list-item" as large as its container
+ - The list-item box needs to contain two elements, horizontally aligned:
+   1. a checkbox
+   2. a div that will contain a text description, passed in the props of the item
+
+Assume that the icons are provided as react components.
+All the css should go in a separate file called ListItem.css. 

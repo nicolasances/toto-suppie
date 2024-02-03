@@ -1,0 +1,89 @@
+.slist {
+    display: flex;
+    flex: 1;
+    overflow-y: scroll;
+    max-height: calc(100% - 76px);
+    scroll-behavior: smooth;
+}
+
+
+/************************************************
+ * BOTTOM BAR: ADD ITEM
+ ***********************************************/
+.bottombar {
+    display: flex;
+    padding: 12px;
+    background-color: var(--color-background);
+    position: absolute; 
+    bottom: 0;
+    width: 100vw;
+    box-sizing: border-box;
+    max-height: 76px;
+}
+
+.bottombar .bar {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    padding: 12px 12px;
+    border-radius: 5px;
+    background-color: var(--color-dark-primary);
+    color: var(--color-text-light);
+}
+
+.bottombar svg {
+    width: 24px;
+    height: auto;
+    margin-right: 24px;
+    fill: currentColor;
+}
+
+
+
+/************************************************
+ * NEW ITEM
+ ***********************************************/
+.new-item {
+    padding: 0 12px;
+    width: 100%;
+}
+.new-item .input {
+    display: flex;
+    align-items: center;
+    background-color: var(--color-dark-primary);
+    border-radius: 5px;
+    padding: 12px;
+    height: 52px;
+    box-sizing: border-box;
+}
+.new-item .circle {
+    width: 28px; 
+    min-width: 28px;
+    height: 28px;
+    border: 2px solid var(--color-text-light);
+    border-radius: 5px;
+    margin-right: 12px;
+    box-sizing: border-box;
+}
+
+.new-item input[type="text"] {
+    width: 100%;
+    background-color: var(--color-dark-primary);
+    outline: none;
+    border: none;
+    box-sizing: border-box;
+    color: var(--color-text-light);
+    font-size: medium;
+}
+.new-item .cancel-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+}
+.new-item .cancel-button svg {
+    width: 24px;
+    height: auto;
+    fill: var(--color-red);
+}

@@ -1,0 +1,11 @@
+
+I have the following components available: 
+
+CheckBox: a component displaying a checkbox with the following props (delimited by """): 
+    """
+    export interface CheckBoxProps {
+        onToggleFlag: () => void,
+        flag: boolean
+        label?: string
+    }
+    """"

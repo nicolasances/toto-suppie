@@ -1,0 +1,14 @@
+
+.screen {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    background-color: var(--color-background);
+    color: var(--color-text);
+}
+.screen .screen-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    max-height: calc(100vh - 54px);
+}
