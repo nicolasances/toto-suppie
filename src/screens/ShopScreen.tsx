@@ -25,22 +25,10 @@ export function ShopScreen() {
      */
     const loadSupermarketList = () => {
         setSupermarketList([
-            { description: "Let Mælk", ticked: false },
-            { description: "Cheese Caro", ticked: true },
-            { description: "Bread N", ticked: false },
-            { description: "Bacon i tern", ticked: false },
-            { description: "Let Mælk", ticked: false },
-            { description: "Cheese Caro", ticked: true },
-            { description: "Bread N", ticked: false },
-            { description: "Bacon i tern", ticked: false },
-            { description: "Let Mælk", ticked: false },
-            { description: "Cheese Caro", ticked: true },
-            { description: "Bread N", ticked: false },
-            { description: "Bacon i tern", ticked: false },
-            { description: "Let Mælk", ticked: false },
-            { description: "Cheese Caro", ticked: true },
-            { description: "Bread N", ticked: false },
-            { description: "Bacon i tern", ticked: false },
+            { name: "Let Mælk", ticked: false },
+            { name: "Cheese Caro", ticked: true },
+            { name: "Bread N", ticked: false },
+            { name: "Bacon i tern", ticked: false },
         ]);
     };
 

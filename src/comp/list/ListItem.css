@@ -12,7 +12,7 @@
     transition: opacity 100ms;
 }
 
-.list-item.ticked {
+.list-item.ticked, .list-item.temp {
     opacity: 0.4;
     box-shadow: none;
     transition: opacity 100ms;

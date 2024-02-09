@@ -3,7 +3,8 @@ import { SupermarketListItem } from "../../model/SupermarketListItem";
 import { ListItem } from "./ListItem";
 
 interface SupermarketListProps {
-    items: SupermarketListItem[]
+    items: SupermarketListItem[],
+    onItemClick?: (item: SupermarketListItem) => void
 }
 
 export function SupermarketList(props: SupermarketListProps) {
@@ -13,9 +14,12 @@ export function SupermarketList(props: SupermarketListProps) {
             {props.items.map((item) => {
                 return (
                     <ListItem
-                        description={item.description}
+                        description={item.name}
                         ticked={item.ticked}
-                        key={Math.random()} />
+                        temp={item.temp}
+                        key={Math.random()}
+                        onPress={() => { if (props.onItemClick) props.onItemClick(item) }}
+                    />
                 )
             })}
         </div>

@@ -6,6 +6,7 @@ import { GenericHomeScreen } from './GenericScreen';
 
 import { ReactComponent as PlusSVG } from '../images/plus.svg';
 import { ReactComponent as TrashSVG } from '../images/trash.svg';
+import { SupermarketAPI } from '../api/SupermarketAPI';
 
 export const ListScreen: React.FC = () => {
 
@@ -15,25 +16,15 @@ export const ListScreen: React.FC = () => {
     const newItemRef = useRef<HTMLInputElement>(null)
     const listContainerRef = useRef<HTMLDivElement>(null)
 
-    const loadSupermarketList = () => {
-        setSupermarketList([
-            { description: "Let Mælk", ticked: false },
-            { description: "Cheese Caro", ticked: true },
-            { description: "Bread N", ticked: false },
-            { description: "Bacon i tern", ticked: false },
-            { description: "Let Mælk", ticked: false },
-            { description: "Cheese Caro", ticked: true },
-            { description: "Bread N", ticked: false },
-            { description: "Bacon i tern", ticked: false },
-            { description: "Let Mælk", ticked: false },
-            { description: "Cheese Caro", ticked: true },
-            { description: "Bread N", ticked: false },
-            { description: "Bacon i tern", ticked: false },
-            { description: "Let Mælk", ticked: false },
-            { description: "Cheese Caro", ticked: true },
-            { description: "Bread N", ticked: false },
-            { description: "Bacon i tern", ticked: false },
-        ]);
+    /**
+     * Loads the items of the list
+     */
+    const loadSupermarketList = async () => {
+
+        const { items } = await new SupermarketAPI().getItems()
+
+        setSupermarketList(items)
+
     };
 
     /**
@@ -41,10 +32,19 @@ export const ListScreen: React.FC = () => {
      * 
      * @param item the description of the item
      */
-    const addItem = (item: string) => {
+    const addItem = async (item: string) => {
 
-        // Add the item to the top of the list
-        setSupermarketList([{ description: item, ticked: false }, ...supermarketList])
+        const listItem: SupermarketListItem = { name: item, ticked: false, temp: true }
+
+        // Add the item to the top of the list - setting it to temp
+        setSupermarketList([listItem, ...supermarketList])
+
+        // Post the new item
+        await new SupermarketAPI().addItem(listItem);
+
+        // Reload the supermarket list
+        loadSupermarketList()
+
     }
 
     /**
@@ -69,7 +69,23 @@ export const ListScreen: React.FC = () => {
 
     }
 
-    useEffect(loadSupermarketList, [])
+    /**
+     * When the user clicks on an item
+     */
+    const onItemClick = async (item: SupermarketListItem) => {
+
+        // Toggle the item's flag
+        item.ticked = !item.ticked
+
+        // Save the item
+        await new SupermarketAPI().updateItem(item);
+
+        // Reload the list 
+        loadSupermarketList()
+
+    }
+
+    useEffect(() => { loadSupermarketList() }, [])
     useEffect(() => { if (newItemRef.current) newItemRef.current.focus() }, [addMode])
 
     return (
@@ -79,6 +95,7 @@ export const ListScreen: React.FC = () => {
                 {!addMode &&
                     <SupermarketList
                         items={supermarketList}
+                        onItemClick={onItemClick}
                     />
                 }
                 {addMode && <NewItem inputRef={newItemRef} onSave={onSaveNewItem} onCancel={() => { setAddMode(false) }} />}
