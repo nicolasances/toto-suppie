@@ -7,12 +7,18 @@ export interface CheckBoxProps {
     flag: boolean
     label?: string, 
     strikethroughWhenTicked?: boolean
+    tickable?: boolean
 
 }
 
 export function CheckBox(props: CheckBoxProps) {
 
     const toggleFlag = () => {
+
+        // Toggle only if tickable
+        if (props.tickable === false) return;
+
+        // Toggle the flag
         if (props.onToggleFlag) props.onToggleFlag();
     }
 

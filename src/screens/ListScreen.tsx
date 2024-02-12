@@ -96,6 +96,7 @@ export const ListScreen: React.FC = () => {
                     <SupermarketList
                         items={supermarketList}
                         onItemClick={onItemClick}
+                        tickable={false}
                     />
                 }
                 {addMode && <NewItem inputRef={newItemRef} onSave={onSaveNewItem} onCancel={() => { setAddMode(false) }} />}

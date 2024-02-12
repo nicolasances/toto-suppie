@@ -1,62 +1,113 @@
 import { useEffect, useState } from "react";
-import { SupermarketListItem } from "../model/SupermarketListItem";
 import { GenericHomeScreen } from "./GenericScreen";
 import { SupermarketList } from "../comp/list/SupermarketList";
 import { Supermarket } from "../model/Supermarket";
-import { ListItem } from "../comp/list/ListItem";
 import './ShopScreen.css'
+import { SupermarketAPI } from "../api/SupermarketAPI";
+import { LocationListItem } from "../model/LocationListItem";
+import { ListItem } from "../model/ListItem";
+import { ListItemWidget } from "../comp/list/ListItemWidget";
+import { ReactComponent as CartSVG } from '../images/cart.svg';
+import { SuccessBox } from "../comp/generic/SuccessBox";
 
 export function ShopScreen() {
 
-    const [supermarketList, setSupermarketList] = useState<SupermarketListItem[]>([]);
+    const [supermarketList, setSupermarketList] = useState<LocationListItem[]>([]);
     const [supermarkets, setSupermarkets] = useState<Supermarket[]>([]);
     const [chosenSupermarket, setChosenSupermarket] = useState<Supermarket | null>(null);
+    const [numItemsLeft, setNumItemsLeft] = useState<number>(0);
+    const [completed, setCompleted] = useState(false)
 
     /**
      * Load all the data
     */
     const load = () => {
-        loadSupermarketList()
         loadSupermarkets()
     }
 
     /**
      * Loads the supermarket list
      */
-    const loadSupermarketList = () => {
-        setSupermarketList([
-            { name: "Let Mælk", ticked: false },
-            { name: "Cheese Caro", ticked: true },
-            { name: "Bread N", ticked: false },
-            { name: "Bacon i tern", ticked: false },
-        ]);
+    const loadLocationList = async () => {
+
+        if (!chosenSupermarket) return;
+
+        const { items } = await new SupermarketAPI().getLocationList(chosenSupermarket)
+
+        setSupermarketList(items)
+
+        // Calculate how many articles are left to buy
+        let itemsLeft = 0
+        for (const item of items) {
+            if (!item.ticked) itemsLeft++;
+        }
+
+        setNumItemsLeft(itemsLeft);
+
+        // If there are no items left, set the list as complete!
+        if (itemsLeft == 0) setCompleted(true);
+
     };
+
+    /**
+     * When the user clicks on an item
+     */
+    const onItemClick = async (item: ListItem) => {
+
+        // Toggle the item's flag
+        item.ticked = !item.ticked
+
+        // Save the item
+        await new SupermarketAPI().tickLocationItem(item as LocationListItem, chosenSupermarket!, item.ticked)
+
+        // Reload the list 
+        loadLocationList()
+
+    }
 
     /**
      * Load the availble supermarkets
      */
-    const loadSupermarkets = () => {
-        setSupermarkets([
-            { name: "Super Brugsen", location: "Solrød Strand" },
-            { name: "Føtex", location: "Fisketorvet" },
-            { name: "Lidl", location: "Solrød Strand" },
-        ])
+    const loadSupermarkets = async () => {
 
+        const { supermarkets } = await new SupermarketAPI().getSupermarkets();
+
+        setSupermarkets(supermarkets)
     }
 
     useEffect(load, [])
+    useEffect(() => { loadLocationList() }, [chosenSupermarket])
 
     return (
-        <GenericHomeScreen title={`Shopping (${chosenSupermarket ? chosenSupermarket.name : "where?"})`} back={true}>
+        <GenericHomeScreen title={`Shopping`} back={true}>
             <div className="shopping-screen">
-                {!chosenSupermarket &&
+                <div className="header">
+                    <div className="horizontal vertical-center extend">
+                        <div className="icon-container"><CartSVG /></div>
+                        <div className="location">
+                            <div className="name">{chosenSupermarket ? chosenSupermarket.name : "Pick a location"}</div>
+                            <div className="place">{chosenSupermarket?.location}</div>
+                        </div>
+                    </div>
+                    <div className="items-count">
+                        <div className="num">{numItemsLeft}<span>/{supermarketList?.length}</span></div>
+                        <div className="label">items</div>
+                    </div>
+                </div>
+                {!chosenSupermarket && supermarkets &&
                     <SupermarketsPicker items={supermarkets} onSelectItem={(sup) => { setChosenSupermarket(sup) }} />
                 }
                 {
-                    chosenSupermarket &&
+                    !completed && chosenSupermarket &&
                     <SupermarketList
                         items={supermarketList}
+                        onItemClick={onItemClick}
                     />
+                }
+                {completed &&
+                    <div className="success-box-container">
+                        <SuccessBox />
+                    </div>
                 }
             </div>
 
@@ -71,7 +122,7 @@ function SupermarketsPicker(props: { items: Supermarket[], onSelectItem: (item: 
             {
                 props.items.map((item) => {
                     return (
-                        <ListItem description={item.name} key={Math.random()} style="plain" ticked={false} onPress={() => { props.onSelectItem(item) }} />
+                        <ListItemWidget description={item.name} key={Math.random()} style="plain" ticked={false} onPress={() => { props.onSelectItem(item) }} />
                     )
                 })
             }
@@ -79,3 +130,4 @@ function SupermarketsPicker(props: { items: Supermarket[], onSelectItem: (item: 
     )
 
 }
+

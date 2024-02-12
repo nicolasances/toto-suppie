@@ -15,10 +15,11 @@
     align-items: center;
 }
 .checkbox.ticked .box {
-    background-color: var(--color-light-primary);
+    background-color: currentColor;
 }
 .checkbox.ticked .box svg {
-    fill: var(--color-dark-primary);
+    /* fill: var(--color-dark-primary); */
+    fill: #00869e;
 }
 .checkbox .box svg {
     width: 18px;

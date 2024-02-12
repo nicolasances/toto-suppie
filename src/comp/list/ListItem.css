@@ -13,7 +13,9 @@
 }
 
 .list-item.ticked, .list-item.temp {
-    opacity: 0.4;
+    /* opacity: 0.4; */
+    color: #25c0d5;
+    background-color: #00869e;
     box-shadow: none;
     transition: opacity 100ms;
 }

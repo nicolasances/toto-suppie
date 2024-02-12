@@ -1,5 +1,5 @@
 import { SpeechBubble } from "../comp/generic/SpeechBubble";
-import { ListItem } from "../comp/list/ListItem";
+import { ListItemWidget } from "../comp/list/ListItemWidget";
 import { MonkeyLevel } from "../comp/teach/MonkeyLevel";
 import { GenericHomeScreen } from "./GenericScreen";
 import './TeachScreen.css'
@@ -14,8 +14,8 @@ export function TeachScreen() {
                     <SpeechBubble text="Which ones of these items is picked up first in Super Brugsen?" textColor="var(--color-dark-primary)" />
                 </div>
                 <div className="choice-container">
-                    <ListItem description="Broccoli" ticked={false} />
-                    <ListItem description="Milk" ticked={false} />
+                    <ListItemWidget description="Broccoli" ticked={false} />
+                    <ListItemWidget description="Milk" ticked={false} />
                 </div>
             </div>
         </GenericHomeScreen>

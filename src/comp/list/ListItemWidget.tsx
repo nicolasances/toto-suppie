@@ -7,17 +7,21 @@ import { TouchableOpacity } from '../util/TouchableOpacity';
 export interface ListItemProps {
     description: string
     ticked: boolean
-    style?: "todo" | "plain", 
+    style?: "todo" | "plain"
     temp?: boolean
+    tickable?: boolean
 
     onPress?: () => void
 }
 
-export function ListItem(props: ListItemProps) {
+export function ListItemWidget(props: ListItemProps) {
 
     const [ticked, setTicked] = useState(props.ticked)
 
     const onClick = () => {
+
+        // If the item is not tickable, return
+        if (props.tickable === false) return;
 
         // If the item is in "temp" mode, click has no effect
         if (props.temp === true) return;
@@ -32,7 +36,7 @@ export function ListItem(props: ListItemProps) {
     return (
         <TouchableOpacity className={`list-item ${props.style} ${ticked ? 'ticked' : ''} ${props.temp ? 'temp' : ''}`} onPress={onClick}>
 
-            {(props.style == null || props.style == 'todo') && <CheckBox label={props.description} onToggleFlag={onClick} flag={ticked} strikethroughWhenTicked={true} />}
+            {(props.style == null || props.style == 'todo') && <CheckBox label={props.description} tickable={props.tickable} onToggleFlag={() => {}} flag={ticked} strikethroughWhenTicked={true} />}
 
             {props.style == 'plain' &&
                 <PlainItem label={props.description} ticked={ticked} />
