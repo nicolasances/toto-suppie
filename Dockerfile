@@ -1,32 +1,24 @@
-# Use an official Node.js runtime as the base image
-FROM nginx:1.17.1-alpine as build
+FROM node:14-alpine as build
 
-# Set the working directory in the container
+RUN mkdir /app
+COPY . /app
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+ARG SUPERMARKET_API_ENDPOINT
+ARG AUTH_API_ENDPOINT
+ARG GOOGLE_CLIENT_ID
 
-# Install dependencies
 RUN npm install
+RUN REACT_APP_SUPERMARKET_API_ENDPOINT=$SUPERMARKET_API_ENDPOINT REACT_APP_AUTH_API_ENDPOINT=$AUTH_API_ENDPOINT REACT_APP_GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID npm run build
 
-# Copy the entire project to the working directory
-COPY . .
-
-# Build the React app for production
-RUN npm run build
-
-# Use a lightweight Node.js runtime as the base image
 FROM nginx:alpine
 
-# Remove the default nginx.conf
-RUN rm /etc/nginx/conf.d/default.conf
+COPY ./nginx.conf /etc/nginx/nginx.conf
 
-# Copy your custom nginx.conf to the nginx configuration directory
-COPY nginx.conf /etc/nginx/conf.d/
+RUN mkdir /app
 
-# Copy the build output from the build stage to the nginx public directory
-COPY --from=build /app/build /usr/share/nginx/html
+# # Copy the build output from the build stage to the nginx public directory
+COPY --from=build /app/build /app/build
 
-# Start nginx server when the container launches
+# # Start nginx server when the container launches
 CMD ["nginx", "-g", "daemon off;"]
