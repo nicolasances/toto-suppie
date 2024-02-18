@@ -12,7 +12,7 @@ jobs:
   # This workflow contains a single job called "release"
   release-dev:
     name: Build & Deploy to Cloud run
-    environment: totoexperiments
+    environment: dev
     runs-on: ubuntu-latest
 
     steps:
