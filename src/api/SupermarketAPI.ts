@@ -43,6 +43,17 @@ export class SupermarketAPI {
     }
 
     /**
+     * Deletes an item
+     * 
+     * @param itemId id of the item to delete
+     */
+    async deleteItem(itemId: string) {
+
+        return (await new TotoAPI().fetch('supermarket', `/list/items/${itemId}`, { method: "DELETE" })).json()
+
+    }
+
+    /**
      * Retrieves the list of configured Supermarkets
      * 
      * @returns 
@@ -81,6 +92,27 @@ export class SupermarketAPI {
                 ticked: ticked
             })
         })).json()
+    }
+
+    /**
+     * Retrieves the list of most common names to support stuff like autocomplete
+     * when inserting a new item.
+     */
+    async getNames(): Promise<{ names: string[] }> {
+
+        return (await new TotoAPI().fetch('supermarket', `/names`)).json();
+    }
+
+    /**
+     * Closes a location list. 
+     * Typically used to close a list that is not complete.
+     * 
+     * @param supermarketId the id of the supermarket
+     */
+    async closeLocationList(supermarketId: string) {
+
+        return (await new TotoAPI().fetch('supermarket', `/supermarkets/${supermarketId}/close`, { method: "POST" })).json();
+
     }
 
 }

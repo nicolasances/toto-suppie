@@ -1,0 +1,17 @@
+.toto-icon-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid var(--color-accent);
+    border-radius: 50%;
+    color: var(--color-accent);
+    width: 28px;
+    height: 28px;
+    box-sizing: border-box;
+}
+
+.toto-icon-button svg {
+    fill: currentColor;
+    width: 14px;
+    height: auto;
+}

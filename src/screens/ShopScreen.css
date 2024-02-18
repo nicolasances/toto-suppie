@@ -76,3 +76,27 @@
     text-transform: uppercase;
     opacity: 0.6;
 }
+
+.shopping-screen .buttons-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 24px 24px 24px;
+    flex: 1;
+}
+
+.shopping-screen .confirm-popup {
+    text-align: center;
+}
+.shopping-screen .confirm-popup p {
+    font-size: medium;
+}
+.shopping-screen .confirm-popup p.small {
+    font-size: small;
+}
+.shopping-screen .confirm-popup .buttons-container {
+    display: flex;
+    flex-direction: row;
+    margin: 32px 0 0 0;
+    padding: 0;
+}

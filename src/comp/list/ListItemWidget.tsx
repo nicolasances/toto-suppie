@@ -20,15 +20,16 @@ export function ListItemWidget(props: ListItemProps) {
 
     const onClick = () => {
 
-        // If the item is not tickable, return
-        if (props.tickable === false) return;
-
         // If the item is in "temp" mode, click has no effect
         if (props.temp === true) return;
 
-        setTicked(!ticked)
-
+        // If an onPress is configured, call it, even if the item is not tickable (to enable edit mode)
         if (props.onPress) props.onPress()
+
+        // If the item is not tickable, return
+        if (props.tickable === false) return;
+
+        setTicked(!ticked)
 
     }
 

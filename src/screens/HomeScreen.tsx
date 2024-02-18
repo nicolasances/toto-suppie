@@ -2,12 +2,17 @@ import React, { useEffect, useState } from 'react';
 import './Screen.css'
 import './HomeScreen.css'
 import { GenericHomeScreen } from './GenericScreen';
+import Lottie from 'lottie-react'
+
+import loadingAnim from '../lottie/anim-loading.json';
 
 import { ReactComponent as ListSVG } from '../images/list.svg'
 import { ReactComponent as CartSVG } from '../images/cart.svg'
 import { ReactComponent as MonkeySVG } from '../images/monkey-body.svg'
 import { TouchableOpacity } from '../comp/util/TouchableOpacity';
 import { useNavigate } from 'react-router';
+import { SupermarketAPI } from '../api/SupermarketAPI';
+import { SupermarketListItem } from '../model/SupermarketListItem';
 
 const COLORS = [
     { bck: "#FFCC70", color: "#22668D" },
@@ -21,16 +26,46 @@ const COLORS = [
 
 export const HomeScreen: React.FC = () => {
 
+    const [mainListItems, setMainListItems] = useState<SupermarketListItem[] | null>(null)
+    const [loadingMainList, setLoadingMainList] = useState(false)
+
     const navigate = useNavigate()
+
+    /**
+     * Loads the main supermarket list
+     */
+    const loadMainSupermarketList = async () => {
+
+        // Start the loading if the APIs are slow
+        const loadingTimer = setTimeout(() => { setLoadingMainList(true) }, 400)
+
+        // Load the data
+        const { items } = await new SupermarketAPI().getItems()
+
+        // Stop the timer
+        clearTimeout(loadingTimer);
+
+        // Update the state
+        setMainListItems(items);
+
+        setLoadingMainList(false);
+
+    }
+
+    useEffect(() => { loadMainSupermarketList() }, [])
 
     return (
         <GenericHomeScreen title="Toto Suppie">
 
-            <div className="home-container">
-                <SectionButton label="Edit the list" image={<ListSVG />} onPress={() => { navigate('/list') }} />
-                <SectionButton label="Start shopping!" image={<CartSVG />} onPress={() => { navigate('/shop') }} />
-                <SectionButton label="Teach me!" image={<MonkeySVG />} onPress={() => { navigate('teach') }} />
-            </div>
+            {loadingMainList && <Lottie animationData={loadingAnim} loop={true} />}
+
+            {!loadingMainList && mainListItems &&
+                <div className="home-container">
+                    <SectionButton label={`${mainListItems && mainListItems.length > 0 ? 'Edit the List' : 'Start a List'}`} image={<ListSVG />} onPress={() => { navigate('/list') }} />
+                    {mainListItems && mainListItems?.length > 0 && <SectionButton label="Start shopping!" image={<CartSVG />} onPress={() => { navigate('/shop') }} />}
+                    {/* <SectionButton label="Teach me!" image={<MonkeySVG />} onPress={() => { navigate('teach') }} /> */}
+                </div>
+            }
 
         </GenericHomeScreen>
     )

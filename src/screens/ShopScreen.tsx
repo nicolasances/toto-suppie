@@ -9,6 +9,12 @@ import { ListItem } from "../model/ListItem";
 import { ListItemWidget } from "../comp/list/ListItemWidget";
 import { ReactComponent as CartSVG } from '../images/cart.svg';
 import { SuccessBox } from "../comp/generic/SuccessBox";
+import { TotoButton } from "../comp/generic/TotoButton";
+import { useNavigate } from "react-router-dom";
+import { TotoIconButton } from "../comp/generic/TotoIconButton";
+
+import { ReactComponent as CloseSVG } from '../images/close.svg';
+import TotoPopup from "../comp/generic/TotoPopup";
 
 export function ShopScreen() {
 
@@ -17,6 +23,9 @@ export function ShopScreen() {
     const [chosenSupermarket, setChosenSupermarket] = useState<Supermarket | null>(null);
     const [numItemsLeft, setNumItemsLeft] = useState<number>(0);
     const [completed, setCompleted] = useState(false)
+    const [closeListPopupOpen, setCloseListPopupOpen] = useState<boolean>(false);
+
+    const navigate = useNavigate();
 
     /**
      * Load all the data
@@ -75,11 +84,26 @@ export function ShopScreen() {
         setSupermarkets(supermarkets)
     }
 
+    /**
+     * Closes the list even if not completed
+     */
+    const closeList = async () => {
+
+        if (!chosenSupermarket) return;
+
+        // Close the list
+        await new SupermarketAPI().closeLocationList(chosenSupermarket.id!)
+
+        // Leave
+        navigate('/');
+
+    }
+
     useEffect(load, [])
     useEffect(() => { loadLocationList() }, [chosenSupermarket])
 
     return (
-        <GenericHomeScreen title={`Shopping`} back={true}>
+        <GenericHomeScreen title={`Shopping`} back={true} rightButton={chosenSupermarket != null && supermarketList && supermarketList.length > 0 && <TotoIconButton image={<CloseSVG />} onPress={() => { setCloseListPopupOpen(true) }} />} >
             <div className="shopping-screen">
                 <div className="header">
                     <div className="horizontal vertical-center extend">
@@ -109,6 +133,24 @@ export function ShopScreen() {
                         <SuccessBox />
                     </div>
                 }
+                {completed &&
+                    <div className="buttons-container">
+                        <TotoButton label="Close" onPress={() => { navigate('/') }} />
+                    </div>
+                }
+                <TotoPopup isOpen={closeListPopupOpen} onClose={() => { setCloseListPopupOpen(false) }}>
+                    <div className="confirm-popup">
+                        <div>
+                            <p>Are you sure you want to close the list?</p>
+                            <p className="small">All ticked items will be archived.<br />The others will remain in the main list.</p>
+                        </div>
+                        <div className="buttons-container">
+                            <TotoButton label="Cancel" size="s" type="secondary" onPress={() => { setCloseListPopupOpen(false) }} />
+                            <div style={{ flex: 1 }}></div>
+                            <TotoButton label="Close it" size="s" onPress={closeList} />
+                        </div>
+                    </div>
+                </TotoPopup>
             </div>
 
         </GenericHomeScreen>
@@ -130,4 +172,3 @@ function SupermarketsPicker(props: { items: Supermarket[], onSelectItem: (item: 
     )
 
 }
-

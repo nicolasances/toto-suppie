@@ -56,6 +56,9 @@
     height: 52px;
     box-sizing: border-box;
 }
+.new-item .input input {
+    text-transform: capitalize;
+}
 .new-item .circle {
     width: 28px; 
     min-width: 28px;
@@ -86,4 +89,8 @@
     width: 24px;
     height: auto;
     fill: var(--color-red);
+}
+
+.new-item .autocomplete-container {
+    margin: 6px -12px 0 -12px;
 }
