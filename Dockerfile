@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as the base image
-FROM nginx:1.17.1-alpine
+FROM nginx:1.17.1-alpine as build
 
 # Set the working directory in the container
 WORKDIR /app
