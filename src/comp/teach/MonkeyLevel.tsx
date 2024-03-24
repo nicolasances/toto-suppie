@@ -15,7 +15,7 @@ const skillLevels = {
 
 export function MonkeyLevel() {
 
-    const [intro, setIntro] = useState(true)
+    const [intro, setIntro] = useState(false)
 
     /**
      * Times out the intro

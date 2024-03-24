@@ -63,7 +63,7 @@ export const HomeScreen: React.FC = () => {
                 <div className="home-container">
                     <SectionButton label={`${mainListItems && mainListItems.length > 0 ? 'Edit the List' : 'Start a List'}`} image={<ListSVG />} onPress={() => { navigate('/list') }} />
                     {mainListItems && mainListItems?.length > 0 && <SectionButton label="Start shopping!" image={<CartSVG />} onPress={() => { navigate('/shop') }} />}
-                    {/* <SectionButton label="Teach me!" image={<MonkeySVG />} onPress={() => { navigate('teach') }} /> */}
+                    {<SectionButton label="Teach me!" image={<MonkeySVG />} onPress={() => { navigate('teach') }} />}
                 </div>
             }
 

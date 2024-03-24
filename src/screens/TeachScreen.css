@@ -3,3 +3,8 @@
     margin: 24px;
     color: var(--color-text-light);
 }
+
+.teach-screen .big {
+    font-size: larger;
+    color: blueviolet;
+}

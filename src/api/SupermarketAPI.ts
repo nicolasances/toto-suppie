@@ -1,6 +1,7 @@
 import { LocationListItem } from "../model/LocationListItem"
 import { Supermarket } from "../model/Supermarket"
 import { SupermarketListItem } from "../model/SupermarketListItem"
+import { TrainingExample } from "../model/TrainingExample"
 import { TotoAPI } from "./TotoAPI"
 
 export class SupermarketAPI {
@@ -115,4 +116,35 @@ export class SupermarketAPI {
 
     }
 
+    /**
+     * Saves a Training example
+     * 
+     * @param example the training example to save
+     * @returns nothing
+     */
+    async saveTrainingExample(example: TrainingExample) {
+
+        return (await new TotoAPI().fetch('supermarket', `/games/sort/examples`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(example)
+        })).json()
+    }
+
+    /**
+     * Gets the data for the next round of the Sort game
+     */
+    async nextSortRound(): Promise<SortGameRound> { 
+
+        return (await new TotoAPI().fetch('supermarket', `/games/sort/next`)).json()
+
+    }
+
+}
+
+interface SortGameRound {
+    item1: string, 
+    item2: string
 }

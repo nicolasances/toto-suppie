@@ -3,7 +3,7 @@ import './SpeechBubble.css'
 /**
  * Generic "speech-like" bubble to show text 
  */
-export function SpeechBubble(props: { text: string, textColor?: string }) {
+export function SpeechBubble(props: { text: string | JSX.Element, textColor?: string }) {
 
     return (
         <div className="speech-bubble">
