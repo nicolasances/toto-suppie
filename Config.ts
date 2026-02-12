@@ -9,5 +9,5 @@ export function endpoint(api: ApiName) {
     return ApiEndpoints.get(api)
 }
 
-export const APP_VERSION = "1.0.0"
+export const APP_VERSION = "0.1.0"
 export const GOOGLE_CLIENT_ID = String(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID)

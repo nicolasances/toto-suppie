@@ -24,6 +24,7 @@ jobs:
         echo '${{ secrets.CICD_SERVICE_ACCOUNT }}' > ./credentials.json
         gcloud auth activate-service-account --key-file=./credentials.json
         gcloud auth configure-docker europe-west1-docker.pkg.dev
+        rm ./credentials.json
         
     - name: Create Environment Variables
       run: |

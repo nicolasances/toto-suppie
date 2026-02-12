@@ -14,13 +14,13 @@ export function SupermarketList(props: SupermarketListProps) {
 
     return (
         <div className="supermarket-list">
-            {props.items.map((item) => {
+            {props.items.map((item, index) => {
                 return (
                     <ListItemWidget
                         description={item.name}
                         ticked={item.ticked}
                         temp={item.temp}
-                        key={Math.random()}
+                        key={item.id || `item-${index}`}
                         tickable={props.tickable}
                         onPress={() => { if (props.onItemClick) props.onItemClick(item) }}
                     />
