@@ -1,24 +1,43 @@
-FROM node:14-alpine as build
+# Use official Node.js image from Docker Hub
+FROM node:20 AS build
 
-RUN mkdir /app
-COPY . /app
-WORKDIR /app
-
-ARG SUPERMARKET_API_ENDPOINT
 ARG AUTH_API_ENDPOINT
+ARG SUPERMARKET_API_ENDPOINT
 ARG GOOGLE_CLIENT_ID
 
+ENV NEXT_PUBLIC_AUTH_API_ENDPOINT=${AUTH_API_ENDPOINT}
+ENV NEXT_PUBLIC_SUPERMARKET_API_ENDPOINT=${SUPERMARKET_API_ENDPOINT}
+ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+
+# Set working directory inside the container
+WORKDIR /app
+
+# Copy package.json and package-lock.json (or yarn.lock) to install dependencies
+COPY package.json package-lock.json* ./
+
+# Install dependencies
 RUN npm install
-RUN REACT_APP_SUPERMARKET_API_ENDPOINT=$SUPERMARKET_API_ENDPOINT REACT_APP_AUTH_API_ENDPOINT=$AUTH_API_ENDPOINT REACT_APP_GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID npm run build
 
-FROM nginx:alpine
+# Copy the rest of the Next.js application code
+COPY . .
 
-COPY ./nginx.conf /etc/nginx/nginx.conf
+# Build the Next.js app
+RUN npm run build
 
-RUN mkdir /app
+# Use a lighter image for serving the app (e.g., official Node.js Alpine image)
+FROM node:20-alpine AS production
 
-# # Copy the build output from the build stage to the nginx public directory
-COPY --from=build /app/build /app/build
+# Set working directory
+WORKDIR /app
 
-# # Start nginx server when the container launches
-CMD ["nginx", "-g", "daemon off;"]
+# Copy only the necessary files from the build stage
+COPY --from=build /app ./
+
+# Install only production dependencies (for smaller image)
+RUN npm install --production
+
+# Expose the port that Next.js will run on
+EXPOSE 3000
+
+# Start the Next.js app
+CMD ["npm", "start"]

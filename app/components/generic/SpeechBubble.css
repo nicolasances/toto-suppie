@@ -1,0 +1,17 @@
+
+
+/****************************************************
+ * SPEECH BUBBLE
+ ***************************************************/
+ .speech-bubble {
+    background-color: currentColor;
+    padding: 6px 24px;
+    border-top-right-radius: 24px;
+    border-bottom-left-radius: 24px;
+}
+
+.speech-bubble p {
+    font-size: medium;
+    color: var(--color-text-light);
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+}
