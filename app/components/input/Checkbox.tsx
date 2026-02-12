@@ -1,5 +1,7 @@
+"use client";
+
 import './Checkbox.css';
-import { ReactComponent as TickSVG } from '../../images/tick.svg'
+import Image from 'next/image';
 
 export interface CheckBoxProps {
 
@@ -26,7 +28,7 @@ export function CheckBox(props: CheckBoxProps) {
         <div className={`checkbox ${props.flag === true ? 'ticked' : ''}`} onClick={toggleFlag}>
             <div className={["box", props.flag ? "flagged" : "unflagged"].join(" ")} >
                 {props.flag &&
-                    <TickSVG />
+                    <Image src="/images/tick.svg" alt="Tick" width={24} height={24} />
                 }
             </div>
             <div className={`text ${props.strikethroughWhenTicked === true ? "strikethroughWhenTicked" : ''}`}>

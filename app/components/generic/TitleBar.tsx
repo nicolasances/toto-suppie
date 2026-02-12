@@ -1,7 +1,9 @@
-import { ReactComponent as BackSVG } from '../../images/left-arrow.svg';
+"use client";
+
+import Image from 'next/image';
 
 import './TitleBar.css';
-import { useNavigate } from 'react-router';
+import { useRouter } from 'next/navigation';
 
 interface TitleBarProps {
 
@@ -16,13 +18,13 @@ interface TitleBarProps {
 
 export function TitleBar(props: TitleBarProps) {
 
-    const navigate = useNavigate()
+    const router = useRouter()
 
     const navigateBack = () => {
 
         if (props.onBack) props.onBack();
 
-        navigate(-1);
+        router.back();
     }
 
     // Left button
@@ -31,7 +33,7 @@ export function TitleBar(props: TitleBarProps) {
     )
     if (props.back) leftButton = (
         <div className="button-container">
-            <BackSVG className="icon" onClick={navigateBack} />
+            <Image src="/images/left-arrow.svg" alt="Back" width={24} height={24} className="icon" onClick={navigateBack} />
         </div>
     )
     else if (props.leftButton) leftButton = props.leftButton

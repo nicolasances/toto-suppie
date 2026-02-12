@@ -1,14 +1,15 @@
+"use client";
+
 import './MonkeyLevel.css'
 
-import { ReactComponent as MonkeyIntroSVG } from '../../images/monkey-body.svg';
-import { ReactComponent as DumbSVG } from '../../images/skill/dumb.svg';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { SpeechBubble } from '../generic/SpeechBubble';
 
 const skillLevels = {
     dumb: {
         name: "Dumb as a rock",
-        image: (<DumbSVG />),
+        image: (<Image src="/images/skill/dumb.svg" alt="Dumb" width={100} height={100} />),
         description: "I'm really stupid, sorry... You need to start teaching me the basics!"
     }
 }
@@ -63,7 +64,7 @@ function MonkeyIntro() {
     return (
         <div className="monkey-intro">
             <div className="image">
-                <MonkeyIntroSVG />
+                <Image src="/images/monkey-body.svg" alt="Monkey" width={150} height={150} />
             </div>
             <SpeechBubble text="Help me learn the order in which items should be picked up!" />
         </div>

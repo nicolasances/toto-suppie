@@ -1,7 +1,9 @@
+"use client";
+
 import React, { useState } from 'react';
 import { CheckBox } from '../input/Checkbox';
 import './ListItem.css';
-import { ReactComponent as TickSVG } from '../../images/tick.svg';
+import Image from 'next/image';
 import { TouchableOpacity } from '../util/TouchableOpacity';
 
 export interface ListItemProps {
@@ -51,7 +53,7 @@ function PlainItem(props: { label: string, ticked?: boolean }) {
     return (
         <div className="plain">
             <div className="circle">
-                {props.ticked && <TickSVG />}
+                {props.ticked && <Image src="/images/tick.svg" alt="Tick" width={16} height={16} />}
             </div>
             <div className="label">{props.label}</div>
         </div>

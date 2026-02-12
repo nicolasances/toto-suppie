@@ -1,7 +1,7 @@
 import './SupermarketList.css'
-import { SupermarketListItem } from "../../model/SupermarketListItem";
-import { LocationListItem } from '../../model/LocationListItem';
-import { ListItem } from '../../model/ListItem';
+import { SupermarketListItem } from "@/model/SupermarketListItem";
+import { LocationListItem } from '@/model/LocationListItem';
+import { ListItem } from '@/model/ListItem';
 import { ListItemWidget } from './ListItemWidget';
 
 interface SupermarketListProps {
