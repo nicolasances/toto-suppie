@@ -98,25 +98,22 @@ export default function ShopScreen() {
             title={`Shopping`} 
             back={true} 
             rightButton={chosenSupermarket != null && supermarketList && supermarketList.length > 0 && 
-                <TotoIconButton image={<Image src="/images/close.svg" alt="Close" width={24} height={24} />} onPress={() => { setCloseListPopupOpen(true); }} />
+                <TotoIconButton image={<Image src="/images/close.svg" alt="Close" width={16} height={16} />} onPress={() => { setCloseListPopupOpen(true); }} />
             } 
         >
             <div className="shopping-screen">
-                <div className="header">
-                    <div className="horizontal vertical-center extend">
-                        <div className="icon-container">
-                            <Image src="/images/cart.svg" alt="Cart" width={32} height={32} />
-                        </div>
-                        <div className="location">
-                            <div className="name">{chosenSupermarket ? chosenSupermarket.name : "Pick a location"}</div>
-                            <div className="place">{chosenSupermarket?.location}</div>
+                {!chosenSupermarket && (
+                    <div className="header">
+                        <div className="horizontal vertical-center extend">
+                            <div className="icon-container">
+                                <Image src="/images/cart.svg" alt="Cart" width={20} height={20} />
+                            </div>
+                            <div className="location">
+                                <div className="name">Pick a location</div>
+                            </div>
                         </div>
                     </div>
-                    <div className="items-count">
-                        <div className="num">{numItemsLeft}<span>/{supermarketList?.length}</span></div>
-                        <div className="label">items</div>
-                    </div>
-                </div>
+                )}
                 {!chosenSupermarket && supermarkets &&
                     <SupermarketsPicker items={supermarkets} onSelectItem={(sup) => { setChosenSupermarket(sup); }} />
                 }

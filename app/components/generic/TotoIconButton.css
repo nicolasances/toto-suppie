@@ -2,9 +2,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid var(--color-accent);
+    border: 2px solid #d9f99d;
     border-radius: 50%;
-    color: var(--color-accent);
+    color: #d9f99d;
     width: 28px;
     height: 28px;
     box-sizing: border-box;
@@ -14,4 +14,9 @@
     fill: currentColor;
     width: 14px;
     height: auto;
+}
+
+.toto-icon-button img {
+    width: 14px !important;
+    height: 14px !important;
 }
