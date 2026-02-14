@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./fonts.css";
+import { AuthWrapper } from "./components/AuthWrapper";
 
 export const metadata: Metadata = {
   title: "Toto Suppie",
@@ -18,7 +19,9 @@ export default function RootLayout({
         <script src="https://accounts.google.com/gsi/client" async></script>
       </head>
       <body>
-        {children}
+        <AuthWrapper>
+          {children}
+        </AuthWrapper>
       </body>
     </html>
   );

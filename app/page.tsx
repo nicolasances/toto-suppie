@@ -1,28 +1,92 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { getStoredUserToken, googleSignIn } from "@/auth/AuthUtil";
+import React, { useEffect, useState } from 'react';
+import { GenericHomeScreen } from './components/GenericScreen';
+import Lottie from 'lottie-react';
+import Image from 'next/image';
+import './HomeScreen.css';
+import { TouchableOpacity } from './components/util/TouchableOpacity';
+import { useRouter } from 'next/navigation';
+import { SupermarketAPI } from '@/api/SupermarketAPI';
+import { SupermarketListItem } from '@/model/SupermarketListItem';
+
+const COLORS = [
+    { bck: "#FFCC70", color: "#22668D" },
+    { bck: "#FFFADD", color: "#22668D" },
+    { bck: "#8ECDDD", color: "#22668D" },
+    { bck: "#22668D", color: "#FFCC70" },
+    { bck: "#FFCC70", color: "#22668D" },
+    { bck: "#A94438", color: "#E4DEBE" },
+    { bck: "#B138D0", color: "#FFE7C1" },
+];
 
 export default function Home() {
-  const router = useRouter();
+    const [mainListItems, setMainListItems] = useState<SupermarketListItem[] | null>(null);
+    const [loadingMainList, setLoadingMainList] = useState(false);
+    const [animData, setAnimData] = useState<any>(null);
+    const router = useRouter();
 
-  useEffect(() => {
-    const user = getStoredUserToken();
-    if (user) {
-      router.push("/list");
-    } else {
-      googleSignIn();
-    }
-  }, [router]);
+    /**
+     * Loads the main supermarket list
+     */
+    const loadMainSupermarketList = async () => {
+        // Start the loading if the APIs are slow
+        const loadingTimer = setTimeout(() => { setLoadingMainList(true) }, 400);
 
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold mb-4">Toto Suppie</h1>
-        <p className="text-lg">Your smart shopping list</p>
-        <p className="text-sm mt-4">Signing in with Google...</p>
-      </div>
-    </div>
-  );
+        // Load the data
+        const { items } = await new SupermarketAPI().getItems();
+
+        // Stop the timer
+        clearTimeout(loadingTimer);
+
+        // Update the state
+        setMainListItems(items);
+
+        setLoadingMainList(false);
+    };
+
+    useEffect(() => {
+        loadMainSupermarketList();
+        // Load lottie animation
+        fetch('/lottie/anim-loading.json')
+            .then(res => res.json())
+            .then(setAnimData);
+    }, []);
+
+    return (
+        <GenericHomeScreen title="Toto Suppie">
+            {loadingMainList && animData && <Lottie animationData={animData} loop={true} />}
+
+            {!loadingMainList && mainListItems &&
+                <div className="home-container">
+                    <SectionButton 
+                        label={`${mainListItems && mainListItems.length > 0 ? 'Edit the List' : 'Start a List'}`} 
+                        imageSrc="/images/list.svg"
+                        onPress={() => { router.push('/list') }} 
+                    />
+                    {mainListItems && mainListItems?.length > 0 && 
+                        <SectionButton 
+                            label="Start shopping!" 
+                            imageSrc="/images/cart.svg"
+                            onPress={() => { router.push('/shop') }} 
+                        />
+                    }
+                    {/* <SectionButton label="Teach me!" imageSrc="/images/monkey-body.svg" onPress={() => { router.push('/teach') }} /> */}
+                </div>
+            }
+        </GenericHomeScreen>
+    );
+}
+
+function SectionButton(props: { label: string; imageSrc: string; onPress?: () => void }) {
+    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+
+    return (
+        <TouchableOpacity className="section-button" onPress={props.onPress}>
+            <div className="image" style={{ backgroundColor: color.bck, color: color.color }}>
+                <Image src={props.imageSrc} alt={props.label} width={48} height={48} />
+            </div>
+            <div className="label">{props.label}</div>
+        </TouchableOpacity>
+    );
 }
