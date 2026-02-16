@@ -1,46 +1,113 @@
-# Getting Started with Create React App
+# Toto Suppie
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A smart shopping list application built with Next.js and Tailwind CSS.
 
-## Available Scripts
+## Tech Stack
 
-In the project directory, you can run:
+- **Framework**: Next.js 16
+- **Styling**: Tailwind CSS
+- **UI Components**: Shadcn/ui
+- **Language**: TypeScript
+- **Authentication**: Google OAuth
+- **Deployment**: Google Cloud Run
 
-### `npm start`
+## Getting Started
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Prerequisites
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- Node.js 20 or higher
+- npm or yarn
 
-### `npm test`
+### Environment Variables
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Create a `.env.local` file in the root directory with the following variables:
 
-### `npm run build`
+```env
+NEXT_PUBLIC_AUTH_API_ENDPOINT=<your-auth-api-endpoint>
+NEXT_PUBLIC_SUPERMARKET_API_ENDPOINT=<your-supermarket-api-endpoint>
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=<your-google-client-id>
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Development
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Install dependencies:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+npm install
+```
 
-### `npm run eject`
+Run the development server:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```bash
+npm run dev
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Building for Production
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Build the application:
+
+```bash
+npm run build
+```
+
+Start the production server:
+
+```bash
+npm start
+```
+
+### Docker
+
+Build the Docker image:
+
+```bash
+docker build --build-arg AUTH_API_ENDPOINT=<endpoint> \
+  --build-arg SUPERMARKET_API_ENDPOINT=<endpoint> \
+  --build-arg GOOGLE_CLIENT_ID=<client-id> \
+  -t toto-suppie .
+```
+
+Run the container:
+
+```bash
+docker run -p 3000:3000 toto-suppie
+```
+
+## Deployment
+
+This application is configured to deploy to Google Cloud Run using GitHub Actions. 
+
+- **Dev deployments**: Triggered on push to `feature/**`, `issue/**`, `dev`, or `main` branches
+- **Production deployments**: Triggered on push to `release/**` branches
+
+The workflows use GCP Artifact Registry for storing Docker images.
+
+## Project Structure
+
+```
+toto-suppie/
+├── app/                    # Next.js app directory
+│   ├── components/        # React components
+│   ├── layout.tsx        # Root layout
+│   ├── page.tsx          # Home page
+│   └── globals.css       # Global styles
+├── api/                   # API client layer
+├── auth/                  # Authentication utilities
+├── components/           # Shared UI components
+│   └── ui/              # Shadcn/ui components
+├── lib/                  # Utility functions
+├── model/                # TypeScript models
+├── public/               # Static assets
+│   ├── images/
+│   └── lottie/
+└── Config.ts             # Configuration
+
+```
 
 ## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Shadcn/ui](https://ui.shadcn.com)
