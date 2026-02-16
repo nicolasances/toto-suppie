@@ -1,0 +1,106 @@
+.slist {
+    display: flex;
+    flex: 1;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    position: relative;
+}
+
+.slist::after {
+    content: '';
+    position: fixed;
+    bottom: 76px;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to top, var(--color-background) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 5;
+}
+
+
+/************************************************
+ * BOTTOM BAR: ADD ITEM
+ ***********************************************/
+.bottombar {
+    display: flex;
+    padding: 12px;
+    background-color: var(--color-background);
+    box-sizing: border-box;
+    min-height: 76px;
+    flex-shrink: 0;
+}
+
+.bottombar .bar {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    padding: 12px 12px;
+    border-radius: 5px;
+    background-color: var(--color-dark-primary);
+    color: var(--color-text-light);
+}
+
+.bottombar svg {
+    width: 24px;
+    height: auto;
+    margin-right: 24px;
+    fill: currentColor;
+}
+
+
+
+/************************************************
+ * NEW ITEM
+ ***********************************************/
+.new-item {
+    padding: 0 12px;
+    width: 100%;
+}
+.new-item .input {
+    display: flex;
+    align-items: center;
+    background-color: var(--color-dark-primary);
+    border-radius: 5px;
+    padding: 12px;
+    height: 52px;
+    box-sizing: border-box;
+}
+.new-item .input input {
+    text-transform: capitalize;
+}
+.new-item .circle {
+    width: 28px; 
+    min-width: 28px;
+    height: 28px;
+    border: 2px solid var(--color-text-light);
+    border-radius: 5px;
+    margin-right: 12px;
+    box-sizing: border-box;
+}
+
+.new-item input[type="text"] {
+    width: 100%;
+    background-color: var(--color-dark-primary);
+    outline: none;
+    border: none;
+    box-sizing: border-box;
+    color: var(--color-text-light);
+    font-size: medium;
+}
+.new-item .cancel-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+}
+.new-item .cancel-button svg {
+    width: 24px;
+    height: auto;
+    fill: var(--color-red);
+}
+
+.new-item .autocomplete-container {
+    margin: 6px -12px 0 -12px;
+}
