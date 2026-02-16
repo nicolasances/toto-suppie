@@ -15,7 +15,7 @@
     padding: 12px;
     background-color: var(--color-background);
     position: absolute; 
-    bottom: 0;
+    bottom: 12;
     width: 100vw;
     box-sizing: border-box;
     max-height: 76px;
