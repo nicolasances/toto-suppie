@@ -1,5 +1,6 @@
 "use client";
 
+import { MaskedSvgIcon } from '../MaskedSvgIcon';
 import './Checkbox.css';
 import Image from 'next/image';
 
@@ -26,9 +27,9 @@ export function CheckBox(props: CheckBoxProps) {
 
     return (
         <div className={`checkbox ${props.flag === true ? 'ticked' : ''}`} onClick={toggleFlag}>
-            <div className={["box", props.flag ? "flagged" : "unflagged"].join(" ")} >
+            <div className={`box ${props.flag ? "flagged" : "unflagged"}`} >
                 {props.flag &&
-                    <Image src="/images/tick.svg" alt="Tick" width={24} height={24} />
+                    <MaskedSvgIcon size='w-4 h-4' src='images/tick.svg' alt="Tick" color='bg-cyan-700' />
                 }
             </div>
             <div className={`text ${props.strikethroughWhenTicked === true ? "strikethroughWhenTicked" : ''}`}>

@@ -13,6 +13,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    box-sizing: border-box;
 }
 .checkbox.ticked .box {
     background-color: currentColor;
@@ -20,11 +21,6 @@
 .checkbox.ticked .box svg {
     /* fill: var(--color-dark-primary); */
     fill: #00869e;
-}
-.checkbox .box svg {
-    width: 18px;
-    height: 18px;
-    fill: currentColor;
 }
 .checkbox.ticked .text.strikethroughWhenTicked {
     text-decoration: line-through;

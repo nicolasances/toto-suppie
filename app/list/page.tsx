@@ -133,7 +133,7 @@ export default function ListScreen() {
 
             {editMode &&
                 <div className="flex justify-center pb-8">
-                    <RoundButton svgIconPath={{ src: "images/close.svg", alt: "Back" }} onClick={() => { setEditMode(false) }} />
+                    <RoundButton svgIconPath={{ src: "images/left-arrow.svg", alt: "Back" }} onClick={() => { setEditMode(false) }} />
                 </div>
             }
 

@@ -1,9 +1,10 @@
 import { useState } from 'react';
 
 import './TouchableOpacity.css';
+import { transform } from 'next/dist/build/swc/generated-native';
 
 interface TouchableOpacityProps {
-  onPress?: () => void, 
+  onPress?: () => void,
   className?: string
   style?: any
   children: any
@@ -17,16 +18,7 @@ export function TouchableOpacity(props: TouchableOpacityProps) {
 
     event.stopPropagation();
 
-    // Update the state, to show the press action
-    setPressed(true)
-
-    setTimeout(() => {
-
-      setPressed(false);
-
-      if (props.onPress) props.onPress()
-
-    }, 100);
+    if (props.onPress) props.onPress()
 
   }
 
@@ -35,7 +27,17 @@ export function TouchableOpacity(props: TouchableOpacityProps) {
   if (pressed) style += ' pressed';
 
   return (
-    <div className={style} style={props.style} onClick={handleClick}>
+    <div className={style} style={{
+      ...props.style,
+      transform: pressed ? "scale(0.95)" : "scale(1)",
+    }}
+      onClick={handleClick}
+      onMouseDown={() => setPressed(true)}
+      onMouseUp={() => setPressed(false)}
+      onMouseLeave={() => setPressed(false)}
+      onTouchStart={() => setPressed(true)}
+      onTouchEnd={() => setPressed(false)}
+    >
       {props.children}
     </div>
   )
