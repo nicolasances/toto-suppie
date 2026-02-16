@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { SupermarketAPI } from '@/api/SupermarketAPI';
 import { ListItemWidget } from '@/app/components/list/ListItemWidget';
 import RoundButton from '../components/buttons/RoundButton';
+import { MaskedSvgIcon } from '../components/MaskedSvgIcon';
 
 export default function ListScreen() {
 
@@ -198,7 +199,7 @@ function NewItem(props: { inputRef: RefObject<HTMLInputElement | null>, item?: S
                     onKeyDown={onKeyDown}
                 />
                 <div className="cancel-button" onClick={onDeleteClick}>
-                    <Image src="/images/trash.svg" alt="Delete" width={24} height={24} />
+                    <MaskedSvgIcon src='images/trash.svg' alt="Delete" color="bg-red-300" />
                 </div>
             </div>
             <div className='autocomplete-container'>
@@ -224,8 +225,8 @@ function BottomBar(props: { onPress: () => void }) {
     return (
         <div className="bottombar" onClick={props.onPress}>
             <div className="bar">
-                <div className="icon-container">
-                    <Image src="/images/plus.svg" alt="Add" width={24} height={24} />
+                <div className="icon-container mr-3">
+                    <MaskedSvgIcon src="/images/plus.svg" alt="Add" color='bg-cyan-200' />
                 </div>
                 <div className="label">
                     Add an item
