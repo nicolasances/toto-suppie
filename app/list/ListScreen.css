@@ -1,9 +1,21 @@
 .slist {
     display: flex;
     flex: 1;
-    overflow-y: scroll;
-    max-height: calc(100% - 76px);
+    overflow-y: auto;
     scroll-behavior: smooth;
+    position: relative;
+}
+
+.slist::after {
+    content: '';
+    position: fixed;
+    bottom: 76px;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to top, var(--color-background) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 5;
 }
 
 
@@ -14,11 +26,9 @@
     display: flex;
     padding: 12px;
     background-color: var(--color-background);
-    position: absolute; 
-    bottom: 12;
-    width: 100vw;
     box-sizing: border-box;
-    max-height: 76px;
+    min-height: 76px;
+    flex-shrink: 0;
 }
 
 .bottombar .bar {
