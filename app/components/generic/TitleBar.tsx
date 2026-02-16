@@ -40,7 +40,7 @@ export function TitleBar(props: TitleBarProps) {
 
     // Right button
     let rightButton = (
-        <div className="button-container">
+        <div className="button-container flex">
             {props.rightButton}
         </div>
     )

@@ -8,6 +8,7 @@ import { GenericHomeScreen } from '@/app/components/GenericScreen';
 import Image from 'next/image';
 import { SupermarketAPI } from '@/api/SupermarketAPI';
 import { ListItemWidget } from '@/app/components/list/ListItemWidget';
+import RoundButton from '../components/buttons/RoundButton';
 
 export default function ListScreen() {
 
@@ -128,6 +129,13 @@ export default function ListScreen() {
             </div>
 
             {!addMode && !editMode && <BottomBar onPress={onNewItem} />}
+
+            {editMode &&
+                <div className="flex justify-center pb-8">
+                    <RoundButton svgIconPath={{ src: "images/close.svg", alt: "Back" }} onClick={() => { setEditMode(false) }} />
+                </div>
+            }
+
         </GenericHomeScreen>
     );
 }
@@ -197,12 +205,12 @@ function NewItem(props: { inputRef: RefObject<HTMLInputElement | null>, item?: S
                 {
                     candidates.map((candidate, index) => {
                         return (
-                            <ListItemWidget 
-                                description={candidate} 
-                                ticked={false} 
-                                key={`candidate-${index}`} 
-                                onPress={() => { selectCandidate(candidate); }} 
-                                tickable={false} 
+                            <ListItemWidget
+                                description={candidate}
+                                ticked={false}
+                                key={`candidate-${index}`}
+                                onPress={() => { selectCandidate(candidate); }}
+                                tickable={false}
                             />
                         );
                     })

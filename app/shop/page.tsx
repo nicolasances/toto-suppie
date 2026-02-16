@@ -15,6 +15,7 @@ import { TotoButton } from "@/app/components/generic/TotoButton";
 import { useRouter } from "next/navigation";
 import { TotoIconButton } from "@/app/components/generic/TotoIconButton";
 import TotoPopup from "@/app/components/generic/TotoPopup";
+import RoundButton from "../components/buttons/RoundButton";
 
 export default function ShopScreen() {
 
@@ -98,7 +99,7 @@ export default function ShopScreen() {
             title={`Shopping`} 
             back={true} 
             rightButton={chosenSupermarket != null && supermarketList && supermarketList.length > 0 && 
-                <TotoIconButton image={<Image src="/images/close.svg" alt="Close" width={16} height={16} />} onPress={() => { setCloseListPopupOpen(true); }} />
+                <RoundButton svgIconPath={{ src: "/images/close.svg", alt: "Close" }} size="s" onClick={() => { setCloseListPopupOpen(true); }} />
             } 
         >
             <div className="shopping-screen">
