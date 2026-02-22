@@ -115,4 +115,12 @@ export class SupermarketAPI {
 
     }
 
+    /**
+     * Opens an SSE connection to the conversation status stream.
+     * Returns the raw fetch Response so the caller can read the streamed body.
+     */
+    streamConversationStatus(): Promise<Response> {
+        return new TotoAPI().fetch('supermarket', '/conversationStatus');
+    }
+
 }
