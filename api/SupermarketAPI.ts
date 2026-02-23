@@ -119,8 +119,25 @@ export class SupermarketAPI {
      * Opens an SSE connection to the conversation status stream.
      * Returns the raw fetch Response so the caller can read the streamed body.
      */
-    streamConversationStatus(): Promise<Response> {
-        return new TotoAPI().fetch('supermarket', '/conversationStatus');
+    async streamConversationStatus(conversationId: string): Promise<Response> {
+        return new TotoAPI().fetch('galeBroker', `/conversations/${conversationId}/stream`);
+    }
+
+    async mockPostMessage(): Promise<{ conversationId: string, messageId: string }> {
+        const payload = {
+            "agentId": "suppie",
+            "actor": "user",
+            "message": "Hey, add the following stuff: apples, bananas, musli noa, bread, liua postai, eggs, bacon, pasta, speghettu"
+        }
+
+        return (await new TotoAPI().fetch('galeBroker', `/messages`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })).json();
     }
 
 }

@@ -58,7 +58,9 @@ export default function Home() {
         setSseActive(true);
 
         try {
-            const response = await new SupermarketAPI().streamConversationStatus();
+            const { conversationId } = await new SupermarketAPI().mockPostMessage();
+
+            const response = await new SupermarketAPI().streamConversationStatus(conversationId);
             const reader = response.body?.getReader();
             if (!reader) { setSseActive(false); return; }
 
