@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useCarMode } from '@/toto-react/context/CarModeContext';
 import RoundButton from '@/toto-react/components/buttons/RoundButton';
 import { MaskedSvgIcon } from '@/toto-react/components/MaskedSvgIcon';
+import ToggleableMenuItem, { ToggleableMenuItemProps } from '@/toto-react/components/ToggleableMenuItem';
 
 export interface SideMenuItem {
     id?: string;
@@ -14,18 +14,31 @@ export interface SideMenuItem {
     closeOnClick?: boolean;
 }
 
-interface SideMenuProps {
-    items?: SideMenuItem[];
+export interface SideMenuToggleableItem extends ToggleableMenuItemProps {
+    id?: string;
+    closeOnClick?: boolean;
 }
 
-export default function SideMenu({ items = [] }: SideMenuProps) {
+interface SideMenuProps {
+    items?: SideMenuItem[];
+    toggleableItems?: SideMenuToggleableItem[];
+}
+
+export default function SideMenu({ items = [], toggleableItems = [] }: SideMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const { carMode, toggleCarMode } = useCarMode();
 
     const handleItemClick = (item: SideMenuItem) => {
         item.onClick();
 
         if (item.closeOnClick !== false) {
+            setIsOpen(false);
+        }
+    };
+
+    const handleToggleableItemClick = (item: SideMenuToggleableItem) => {
+        item.onClick();
+
+        if (item.closeOnClick) {
             setIsOpen(false);
         }
     };
@@ -88,22 +101,19 @@ export default function SideMenu({ items = [] }: SideMenuProps) {
                         </div>
                     ))}
                     <div className='flex-1'></div>
-                    
-                    <div className="flex items-center justify-between p-3 rounded">
-                        <span className="text-base font-medium">Car Mode</span>
-                        <button
-                            onClick={() => {
-                                toggleCarMode();
-                            }}
-                            className={`px-3 py-1 rounded text-sm font-semibold transition-colors ${
-                                carMode
-                                    ? 'bg-red-500 text-white'
-                                    : 'bg-gray-300 text-gray-700'
-                            }`}
-                        >
-                            {carMode ? 'ON' : 'OFF'}
-                        </button>
-                    </div>
+
+                    {toggleableItems.map((item, index) => (
+                        <ToggleableMenuItem
+                            key={item.id ?? `${item.label}-${index}`}
+                            label={item.label}
+                            iconPath={item.iconPath}
+                            iconAlt={item.iconAlt}
+                            isActive={item.isActive}
+                            activeText={item.activeText}
+                            inactiveText={item.inactiveText}
+                            onClick={() => handleToggleableItemClick(item)}
+                        />
+                    ))}
 
             </div>
         </>
