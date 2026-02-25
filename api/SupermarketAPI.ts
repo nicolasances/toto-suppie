@@ -127,7 +127,7 @@ export class SupermarketAPI {
         const payload = {
             "agentId": "suppie",
             "actor": "user",
-            "message": "Hey, add the following stuff: apples, bananas, musli noa, bread, liua postai, eggs, bacon, pasta, speghettu"
+            "message": "Hey, add the following stuff: bananas, musli noa, bread, liua postai, eggs, bacon, pasta, speghettu"
         }
 
         return (await new TotoAPI().fetch('galeBroker', `/messages`, {
