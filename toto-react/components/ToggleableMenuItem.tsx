@@ -47,10 +47,10 @@ export default function ToggleableMenuItem({
             </div>
 
             <div
-                className={`px-3 py-1 rounded text-sm font-semibold transition-colors ${
+                className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${
                     isActive
-                        ? 'bg-red-500 text-white'
-                        : 'bg-gray-300 text-gray-700'
+                        ? 'bg-lime-500 text-white'
+                        : 'bg-cyan-700 text-cyan-500'
                 }`}
             >
                 {isActive ? activeText : inactiveText}
