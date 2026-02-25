@@ -3,10 +3,32 @@
 import { useState } from 'react';
 import { useCarMode } from '@/toto-react/context/CarModeContext';
 import RoundButton from '@/toto-react/components/buttons/RoundButton';
+import { MaskedSvgIcon } from '@/toto-react/components/MaskedSvgIcon';
 
-export default function SideMenu() {
+export interface SideMenuItem {
+    id?: string;
+    label: string;
+    iconPath?: string;
+    iconAlt?: string;
+    onClick: () => void;
+    closeOnClick?: boolean;
+}
+
+interface SideMenuProps {
+    items?: SideMenuItem[];
+}
+
+export default function SideMenu({ items = [] }: SideMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
     const { carMode, toggleCarMode } = useCarMode();
+
+    const handleItemClick = (item: SideMenuItem) => {
+        item.onClick();
+
+        if (item.closeOnClick !== false) {
+            setIsOpen(false);
+        }
+    };
 
     return (
         <>
@@ -32,7 +54,7 @@ export default function SideMenu() {
 
             {/* Slide-out Menu */}
             <div
-                className={`fixed top-0 right-0 h-full w-64 shadow-lg z-40 transform transition-transform duration-300 ease-in-out flex flex-col p-6 ${
+                className={`fixed top-0 right-0 h-full w-64 shadow-lg z-40 transform transition-transform duration-300 ease-in-out flex flex-col p-2 ${
                     isOpen ? 'translate-x-0' : 'translate-x-full'
                 }`}
                 style={{ backgroundColor: 'var(--background)' }}
@@ -40,9 +62,35 @@ export default function SideMenu() {
                 <div className="flex justify-between items-center mb-8">
                 </div>
 
-                <div className="flex flex-col gap-4">
-                    <div className="flex items-center justify-between p-3 bg-gray-100 rounded">
-                        <span className="text-sm font-medium">Car Mode</span>
+                    {items.map((item, index) => (
+                        <div
+                            key={item.id ?? `${item.label}-${index}`}
+                            onClick={() => handleItemClick(item)}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter' || event.key === ' ') {
+                                    event.preventDefault();
+                                    handleItemClick(item);
+                                }
+                            }}
+                            role="button"
+                            tabIndex={0}
+                            className="p-3 rounded font-medium text-left hover:bg-cyan-600 text-base transition-colors flex items-center gap-2 cursor-pointer"
+                        >
+                            {item.iconPath && (
+                                <MaskedSvgIcon
+                                    src={item.iconPath}
+                                    alt={item.iconAlt ?? item.label}
+                                    size="w-5 h-5"
+                                    color="bg-cyan-800"
+                                />
+                            )}
+                            <span>{item.label}</span>
+                        </div>
+                    ))}
+                    <div className='flex-1'></div>
+                    
+                    <div className="flex items-center justify-between p-3 rounded">
+                        <span className="text-base font-medium">Car Mode</span>
                         <button
                             onClick={() => {
                                 toggleCarMode();
@@ -56,7 +104,7 @@ export default function SideMenu() {
                             {carMode ? 'ON' : 'OFF'}
                         </button>
                     </div>
-                </div>
+
             </div>
         </>
     );
