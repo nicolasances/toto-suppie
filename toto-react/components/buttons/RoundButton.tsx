@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { MaskedSvgIcon } from "../MaskedSvgIcon";
 
-type RoundButtonType = "primary" | "filled" | "secondary";
+type RoundButtonType = "primary" | "filled" | "secondary" | "filledSecondary";
 
 export default function RoundButton({
     icon,
@@ -52,12 +52,15 @@ export default function RoundButton({
         if (onClick) onClick();
     };
 
-    const hasBorder = visualType === "primary" || visualType === "filled";
+    const hasBorder =
+        visualType === "primary" || visualType === "filled" || visualType === "filledSecondary";
     const baseClasses = `rounded-full ${buttonPadding} ${hasBorder ? "border-2" : ""} cursor-pointer transition-transform duration-100`;
 
     const enabledClasses =
         visualType === "filled"
             ? "border-lime-200 bg-lime-200"
+            : visualType === "filledSecondary"
+                ? "border-cyan-600 bg-cyan-600"
             : visualType === "secondary"
                 ? "hover:opacity-70"
                 : "border-cyan-600 hover:opacity-70";

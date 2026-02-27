@@ -69,7 +69,15 @@ export default function ChatInput({
             maxHeight: `${maxTextAreaHeight}px`,
           }}
         ></textarea>
-        <div className="flex justify-end fill-cyan-800">
+        <div className="flex justify-end fill-cyan-800 gap-2">
+          {!message &&
+            <RoundButton
+              svgIconPath={{ src: "/images/microphone.svg", alt: "Talk" }}
+              onClick={() => { }}
+              size="s"
+              type="filledSecondary"
+            />
+          }
           {!isSending && (
             <RoundButton
               svgIconPath={{ src: "/images/send.svg", alt: "Send" }}
