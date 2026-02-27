@@ -62,7 +62,7 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
         <div className={chatMode ? "pb-24" : ""}>{children}</div>
         {chatMode && (
           <div
-            className="fixed bottom-0 left-0 right-0 z-20 p-3 border-t"
+            className="fixed bottom-0 left-0 right-0 z-20 p-3"
             style={{ backgroundColor: "var(--background)", borderColor: "var(--foreground-ghost)" }}
           >
             <ChatInput handlers={chatInputHandlers} />
