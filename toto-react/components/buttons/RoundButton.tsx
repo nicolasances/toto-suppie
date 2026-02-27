@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { MaskedSvgIcon } from "../MaskedSvgIcon";
 
+type RoundButtonType = "primary" | "filled" | "secondary";
+
 export default function RoundButton({
     icon,
     svgIconPath,
@@ -8,9 +10,7 @@ export default function RoundButton({
     size,
     disabled,
     loading,
-    dark,
-    secondary,
-    slim
+    type = "primary",
 }: {
     icon?: React.ReactNode;
     svgIconPath?: {
@@ -25,9 +25,7 @@ export default function RoundButton({
     disabled?: boolean;
     iconOnly?: boolean;
     loading?: boolean;
-    dark?: boolean;
-    secondary?: boolean;
-    slim?: boolean;
+    type?: RoundButtonType;
 }) {
     const [pressed, setPressed] = useState(false);
 
@@ -47,27 +45,40 @@ export default function RoundButton({
         buttonPadding = "p-6";
     }
 
-    if (slim) {
-        buttonPadding = "p-0";
-    }
+    const visualType: RoundButtonType = loading ? "primary" : type;
 
     const reactToClick = () => {
         if (disabled || loading) return;
         if (onClick) onClick();
     };
 
-    const baseClasses = `rounded-full ${buttonPadding} ${secondary || slim ? "" : "border-2"} cursor-pointer transition-transform duration-100`;
-    const enabledClasses = secondary || slim ? "text-cyan-600 hover:opacity-70" : dark ? "border-cyan-800" : "border-lime-200";
-    const disabledClasses = secondary || slim ? "text-cyan-600 cursor-not-allowed opacity-50" : disabled ? "border-cyan-600 cursor-not-allowed" : "border-transparent cursor-not-allowed";
+    const hasBorder = visualType === "primary" || visualType === "filled";
+    const baseClasses = `rounded-full ${buttonPadding} ${hasBorder ? "border-2" : ""} cursor-pointer transition-transform duration-100`;
+
+    const enabledClasses =
+        visualType === "filled"
+            ? "border-lime-200 bg-lime-200"
+            : visualType === "secondary"
+                ? "hover:opacity-70"
+                : "border-cyan-600 hover:opacity-70";
+
+    const disabledClasses =
+        visualType === "secondary"
+            ? "opacity-50 cursor-not-allowed"
+            : "border-cyan-600 cursor-not-allowed opacity-50";
 
     const iconClasses = `${iconSize} stroke-current fill-current`;
     const iconColor = disabled || loading
         ? "text-cyan-600"
-        : `${dark ? "text-cyan-600" : "text-lime-200"} group-hover:text-current`;
+        : visualType === "primary"
+            ? "text-cyan-600"
+            : "text-cyan-800";
 
     const svgIconColor = disabled || loading
         ? "bg-cyan-600"
-        : dark ? "bg-cyan-600" : "bg-lime-200";
+        : visualType === "primary"
+            ? "bg-cyan-600"
+            : "bg-cyan-800";
 
     const animatedCircleRadius = 15;
 

@@ -72,11 +72,11 @@ export default function ChatInput({
         <div className="flex justify-end fill-cyan-800">
           {!isSending && (
             <RoundButton
-              svgIconPath={{ src: "/images/send.svg", alt: "Send", color: "bg-cyan-600" }}
+              svgIconPath={{ src: "/images/send.svg", alt: "Send" }}
               onClick={() => void sendMessage()}
               size="s"
               disabled={message.trim().length === 0}
-              dark
+              type="filled"
             />
           )}
         </div>
