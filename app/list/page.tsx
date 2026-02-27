@@ -10,6 +10,7 @@ import { SupermarketAPI } from '@/api/SupermarketAPI';
 import { ListItemWidget } from '@/app/components/list/ListItemWidget';
 import RoundButton from '../components/buttons/RoundButton';
 import { MaskedSvgIcon } from '../components/MaskedSvgIcon';
+import { useHeader } from '@/context/HeaderContext';
 
 export default function ListScreen() {
 
@@ -18,6 +19,7 @@ export default function ListScreen() {
     const [addMode, setAddMode] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [editedItem, setEditedItem] = useState<SupermarketListItem | null>(null);
+    const { setConfig } = useHeader();
 
     const newItemRef = useRef<HTMLInputElement>(null);
     const listContainerRef = useRef<HTMLDivElement>(null);
@@ -114,9 +116,15 @@ export default function ListScreen() {
     useEffect(() => { loadSupermarketList(); }, []);
     useEffect(() => { loadNames(); }, []);
     useEffect(() => { if (newItemRef.current) newItemRef.current.focus(); }, [addMode, editMode]);
+    useEffect(() => {
+        setConfig({
+            title: 'List',
+            backButton: { enabled: !addMode && !editMode },
+        });
+    }, [addMode, editMode, setConfig]);
 
     return (
-        <GenericHomeScreen title="List" back={!addMode && !editMode}>
+        <GenericHomeScreen>
             <div className="slist" ref={listContainerRef}>
                 {!addMode && !editMode &&
                     <SupermarketList

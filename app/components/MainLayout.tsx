@@ -7,6 +7,8 @@ import SideMenu, { SideMenuItem, SideMenuToggleableItem } from "@/app/ui/SideMen
 import { CarModeContextProvider, useCarMode } from "@/toto-react/context/CarModeContext";
 import { ChatModeContextProvider, useChatMode } from "@/context/ChatModeContext";
 import ChatInput, { ChatInputHandlers } from "@/toto-react/components/ChatInput";
+import { HeaderProvider } from "@/context/HeaderContext";
+import AppHeader from "./AppHeader";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -59,7 +61,10 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
     <>
       <SideMenu items={menuItems} toggleableItems={toggleableItems} />
       <AuthWrapper>
-        <div className={chatMode ? "pb-24" : ""}>{children}</div>
+        <HeaderProvider>
+          <AppHeader />
+          <div className={chatMode ? "pb-24" : ""}>{children}</div>
+        </HeaderProvider>
         {chatMode && (
           <div
             className="fixed bottom-0 left-0 right-0 z-20 p-3"

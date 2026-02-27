@@ -11,9 +11,7 @@ interface ChatInputProps {
   handlers: ChatInputHandlers;
 }
 
-export default function ChatInput({
-  handlers,
-}: ChatInputProps) {
+export default function ChatInput({ handlers, }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);

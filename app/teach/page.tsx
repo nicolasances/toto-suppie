@@ -5,10 +5,21 @@ import { ListItemWidget } from "@/app/components/list/ListItemWidget";
 import { MonkeyLevel } from "@/app/components/teach/MonkeyLevel";
 import { GenericHomeScreen } from "@/app/components/GenericScreen";
 import './TeachScreen.css';
+import { useHeader } from "@/context/HeaderContext";
+import { useEffect } from "react";
 
 export default function TeachScreen() {
+    const { setConfig } = useHeader();
+
+    useEffect(() => {
+        setConfig({
+            title: 'Teach me!',
+            backButton: { enabled: true },
+        });
+    }, [setConfig]);
+
     return (
-        <GenericHomeScreen title="Teach me!" back={true}>
+        <GenericHomeScreen>
             <div className="teach-screen">
                 <MonkeyLevel />
                 <div className="bubble-container">

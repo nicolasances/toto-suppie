@@ -9,6 +9,7 @@ import { TouchableOpacity } from './components/util/TouchableOpacity';
 import { useRouter } from 'next/navigation';
 import { SupermarketAPI } from '@/api/SupermarketAPI';
 import { SupermarketListItem } from '@/model/SupermarketListItem';
+import { useHeader } from '@/context/HeaderContext';
 
 interface SSEMessage {
     event: string;
@@ -33,6 +34,7 @@ export default function Home() {
     const [sseMessages, setSseMessages] = useState<SSEMessage[]>([]);
     const [sseActive, setSseActive] = useState(false);
     const router = useRouter();
+    const { setConfig } = useHeader();
 
     /**
      * Loads the main supermarket list
@@ -103,8 +105,12 @@ export default function Home() {
             .then(setAnimData);
     }, []);
 
+    useEffect(() => {
+        setConfig({ title: 'Toto Suppie' });
+    }, [setConfig]);
+
     return (
-        <GenericHomeScreen title="Toto Suppie">
+        <GenericHomeScreen>
             {loadingMainList && animData && <Lottie animationData={animData} loop={true} />}
 
             {!loadingMainList && mainListItems &&

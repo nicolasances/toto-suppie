@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { TotoIconButton } from "@/app/components/generic/TotoIconButton";
 import TotoPopup from "@/app/components/generic/TotoPopup";
 import RoundButton from "../components/buttons/RoundButton";
+import { useHeader } from "@/context/HeaderContext";
 
 export default function ShopScreen() {
 
@@ -27,6 +28,7 @@ export default function ShopScreen() {
     const [closeListPopupOpen, setCloseListPopupOpen] = useState<boolean>(false);
 
     const router = useRouter();
+    const { setConfig } = useHeader();
 
     /**
      * Load all the data
@@ -93,15 +95,25 @@ export default function ShopScreen() {
 
     useEffect(() => { load(); }, []);
     useEffect(() => { loadLocationList(); }, [chosenSupermarket]);
+    useEffect(() => {
+        setConfig({
+            title: 'Shopping',
+            backButton: { enabled: true },
+            rightButton:
+                chosenSupermarket != null && supermarketList && supermarketList.length > 0 ? (
+                    <RoundButton
+                        svgIconPath={{ src: "/images/close.svg", alt: "Close" }}
+                        size="s"
+                        onClick={() => {
+                            setCloseListPopupOpen(true);
+                        }}
+                    />
+                ) : undefined,
+        });
+    }, [chosenSupermarket, supermarketList, setConfig]);
 
     return (
-        <GenericHomeScreen 
-            title={`Shopping`} 
-            back={true} 
-            rightButton={chosenSupermarket != null && supermarketList && supermarketList.length > 0 && 
-                <RoundButton svgIconPath={{ src: "/images/close.svg", alt: "Close" }} size="s" onClick={() => { setCloseListPopupOpen(true); }} />
-            } 
-        >
+        <GenericHomeScreen>
             <div className="shopping-screen">
                 {!chosenSupermarket && (
                     <div className="header">
