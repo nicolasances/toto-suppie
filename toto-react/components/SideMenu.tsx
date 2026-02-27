@@ -52,7 +52,7 @@ export default function SideMenu({ items = [], toggleableItems = [] }: SideMenuP
                         src: "/images/menu.svg",
                         alt: "Menu",
                     }}
-                    slim
+                    type='secondary'
                     onClick={() => setIsOpen(!isOpen)}
                 />
             </div>

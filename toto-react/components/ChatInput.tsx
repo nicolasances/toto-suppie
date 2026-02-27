@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import RoundButton from "@/toto-react/components/buttons/RoundButton";
 
 export interface ChatInputHandlers {
@@ -19,9 +19,9 @@ export default function ChatInput({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const maxTextAreaHeight = 240;
-  const minTextAreaHeight = 64;
+  const minTextAreaHeight = 32;
 
-  const adjustTextAreaHeight = () => {
+  useLayoutEffect(() => {
     if (!textareaRef.current) {
       return;
     }
@@ -29,11 +29,10 @@ export default function ChatInput({
     textareaRef.current.style.height = "auto";
     const newHeight = Math.min(textareaRef.current.scrollHeight, maxTextAreaHeight);
     textareaRef.current.style.height = `${newHeight}px`;
-  };
+  }, [message]);
 
   const onChangeHandler = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(event.target.value);
-    adjustTextAreaHeight();
   };
 
   const sendMessage = async () => {
@@ -55,7 +54,7 @@ export default function ChatInput({
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="flex flex-col border border-cyan-700 rounded-3xl px-4 py-3 mb-2">
+      <div className="flex items-end border border-cyan-700 rounded-3xl px-4 py-3 mb-2">
         <textarea
           ref={textareaRef}
           onChange={onChangeHandler}

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { MaskedSvgIcon } from "../MaskedSvgIcon";
 
-type RoundButtonType = "primary" | "filled" | "secondary" | "filledSecondary";
+type RoundButtonType = "primary" | "filled" | "secondary" | "filledSecondary" | "menu";
 
 export default function RoundButton({
     icon,
