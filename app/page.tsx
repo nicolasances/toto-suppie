@@ -125,7 +125,7 @@ export default function Home() {
                 </div>
             }
             {/* SSE Test Section */}
-            <div style={{ marginTop: 32, padding: 16, background: '#1a1a2e', borderRadius: 12, color: '#eee', fontFamily: 'monospace' }}>
+            {/* <div style={{ marginTop: 32, padding: 16, background: '#1a1a2e', borderRadius: 12, color: '#eee', fontFamily: 'monospace' }}>
                 <div style={{ marginBottom: 12, fontWeight: 'bold', fontSize: 14 }}>SSE Stream Test</div>
                 <button
                     onClick={openSseStream}
@@ -144,7 +144,7 @@ export default function Home() {
                         </div>
                     ))}
                 </div>
-            </div>
+            </div> */}
         </GenericHomeScreen>
     );
 }
