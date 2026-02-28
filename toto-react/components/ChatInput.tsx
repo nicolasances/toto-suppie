@@ -61,13 +61,13 @@ export default function ChatInput({ handlers, }: ChatInputProps) {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className={`flex items-end border border-cyan-700 px-4 py-3 mb-2 shadow ${isExpanded ? "rounded-3xl" : "rounded-full"}`}>
+      <div className={`flex items-end border border-cyan-700 pl-6 pr-4 py-3 mb-2 shadow ${isExpanded ? "rounded-3xl" : "rounded-full"}`}>
         <textarea
           ref={textareaRef}
           onChange={onChangeHandler}
           onKeyDown={onKeyDownHandler}
           value={message}
-          className="bg-transparent border-0 focus:outline-none w-full text-xl no-scrollbar"
+          className="bg-transparent border-0 focus:outline-none w-full text-xl no-scrollbar pr-2"
           rows={1}
           style={{
             resize: "none",

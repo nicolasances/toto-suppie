@@ -191,11 +191,11 @@ function AgentBubble({ message, bottomOffset }: { message: string | undefined; b
 
   return (
     <div
-      className="fixed left-0 right-0 z-20 px-3 pb-3"
+      className="fixed left-0 right-0 z-20 px-3"
       style={{
         bottom: `${bottomOffset}px`,
         opacity: visible ? 1 : 0,
-        transition: "opacity 0.4s ease",
+        transition: "opacity 0.9s ease",
         pointerEvents: "none",
       }}
     >
