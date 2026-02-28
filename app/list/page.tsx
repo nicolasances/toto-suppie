@@ -25,11 +25,12 @@ export default function ListScreen() {
     const newItemRef = useRef<HTMLInputElement>(null);
     const listContainerRef = useRef<HTMLDivElement>(null);
 
-    const onListScroll = () => {
+    const updateGradient = () => {
         const el = listContainerRef.current;
         if (!el) return;
+        const overflows = el.scrollHeight > el.clientHeight + 4;
         const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 4;
-        setShowGradient(!atBottom);
+        setShowGradient(overflows && !atBottom);
     };
 
     /**
@@ -123,6 +124,7 @@ export default function ListScreen() {
 
     useEffect(() => { loadSupermarketList(); }, []);
     useEffect(() => { loadNames(); }, []);
+    useEffect(() => { updateGradient(); }, [supermarketList]);
     useEffect(() => { if (newItemRef.current) newItemRef.current.focus(); }, [addMode, editMode]);
     useEffect(() => {
         setConfig({
@@ -134,7 +136,7 @@ export default function ListScreen() {
     return (
         <GenericHomeScreen>
             <div className="list-screen">
-                <div className="slist" ref={listContainerRef} onScroll={onListScroll}>
+                <div className="slist" ref={listContainerRef} onScroll={updateGradient}>
                     {!addMode && !editMode &&
                         <SupermarketList
                             items={supermarketList}
