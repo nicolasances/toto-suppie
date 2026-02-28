@@ -47,6 +47,7 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
   const [sseMessages, setSseMessages] = useState<SSEMessage[]>([{ event: "message", receivedAt: new Date().toISOString(), data: { message: "Hello!" } }]);
   const [sseActive, setSseActive] = useState(false);
   const [chatDockHeightPx, setChatDockHeightPx] = useState(CHAT_DOCK_HEIGHT_PX);
+  const [visibleMessage, setVisibleMessage] = useState<string | undefined>(undefined);
 
   const menuItems = useMemo<SideMenuItem[]>(
     () => [
@@ -129,6 +130,14 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
     }
   };
 
+  useEffect(() => {
+    const last = sseMessages?.[sseMessages.length - 1]?.data?.message;
+    if (!last) return;
+    setVisibleMessage(last);
+    const t = setTimeout(() => setVisibleMessage(undefined), 5000);
+    return () => clearTimeout(t);
+  }, [sseMessages]);
+
   return (
     <>
       <SideMenu items={menuItems} toggleableItems={toggleableItems} />
@@ -150,48 +159,73 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
           </div>
         </HeaderProvider>
         {chatMode && (
-          <ChatDock
-            message={sseMessages?.[sseMessages.length - 1]?.data?.message}
-            chatInputHandlers={chatInputHandlers}
-            onHeightChange={setChatDockHeightPx}
-          />
+          <>
+            <AgentBubble message={visibleMessage} bottomOffset={chatDockHeightPx} />
+            <ChatDock
+              chatInputHandlers={chatInputHandlers}
+              onHeightChange={setChatDockHeightPx}
+            />
+          </>
         )}
       </AuthWrapper>
     </>
   );
 }
 
+function AgentBubble({ message, bottomOffset }: { message: string | undefined; bottomOffset: number }) {
+  const [displayedMessage, setDisplayedMessage] = useState<string | undefined>();
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (message) {
+      setDisplayedMessage(message);
+      setVisible(true);
+    } else {
+      setVisible(false);
+      const t = setTimeout(() => setDisplayedMessage(undefined), 400);
+      return () => clearTimeout(t);
+    }
+  }, [message]);
+
+  if (!displayedMessage) return null;
+
+  return (
+    <div
+      className="fixed left-0 right-0 z-20 px-3 pb-3"
+      style={{
+        bottom: `${bottomOffset}px`,
+        opacity: visible ? 1 : 0,
+        transition: "opacity 0.4s ease",
+        pointerEvents: "none",
+      }}
+    >
+      <AgentMessage message={displayedMessage} />
+    </div>
+  );
+}
+
 function ChatDock({
-  message,
   chatInputHandlers,
   onHeightChange,
 }: {
-  message?: string;
   chatInputHandlers: ChatInputHandlers;
   onHeightChange: (height: number) => void;
 }) {
   const dockRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!dockRef.current) {
-      return;
-    }
+    if (!dockRef.current) return;
 
     const element = dockRef.current;
     const updateHeight = () => onHeightChange(Math.ceil(element.getBoundingClientRect().height));
 
     updateHeight();
 
-    const observer = new ResizeObserver(() => {
-      updateHeight();
-    });
-
+    const observer = new ResizeObserver(updateHeight);
     observer.observe(element);
 
-    return () => {
-      observer.disconnect();
-    };
-  }, [message, onHeightChange]);
+    return () => observer.disconnect();
+  }, [onHeightChange]);
 
   return (
     <div
@@ -203,9 +237,6 @@ function ChatDock({
         paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
       }}
     >
-      <div className="mb-4">
-        {message && <AgentMessage message={message} />}
-      </div>
       <ChatInput handlers={chatInputHandlers} />
     </div>
   );
@@ -214,7 +245,7 @@ function ChatDock({
 function AgentMessage({ message }: { message: string }) {
 
   return (
-    <div className="relative pl-3 pr-10">
+    <div className="relative pl-3 pr-10 opacity-90">
       <div className="absolute w-2 h-2 top left-1 bg-cyan-400 rounded-full"></div>
       <div className="absolute w-4 h-4 top left-2 bg-cyan-400 rounded-full"></div>
       <div className="text-lg bg-cyan-400 px-4 py-2 rounded-3xl">

@@ -14,6 +14,7 @@ interface ChatInputProps {
 export default function ChatInput({ handlers, }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const maxTextAreaHeight = 240;
@@ -27,6 +28,7 @@ export default function ChatInput({ handlers, }: ChatInputProps) {
     textareaRef.current.style.height = "auto";
     const newHeight = Math.min(textareaRef.current.scrollHeight, maxTextAreaHeight);
     textareaRef.current.style.height = `${newHeight}px`;
+    setIsExpanded(newHeight > minTextAreaHeight);
   }, [message]);
 
   const onChangeHandler = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -59,7 +61,7 @@ export default function ChatInput({ handlers, }: ChatInputProps) {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="flex items-end border border-cyan-700 rounded-3xl px-4 py-3 mb-2">
+      <div className={`flex items-end border border-cyan-700 px-4 py-3 mb-2 shadow ${isExpanded ? "rounded-3xl" : "rounded-full"}`}>
         <textarea
           ref={textareaRef}
           onChange={onChangeHandler}
