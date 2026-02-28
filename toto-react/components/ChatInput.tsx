@@ -34,7 +34,7 @@ export default function ChatInput({ handlers, }: ChatInputProps) {
   };
 
   const onKeyDownHandler = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === "Enter" && event.metaKey) {
+    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
       event.preventDefault();
       sendMessage();
     }
