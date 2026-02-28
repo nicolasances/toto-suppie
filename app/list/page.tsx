@@ -19,10 +19,18 @@ export default function ListScreen() {
     const [addMode, setAddMode] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [editedItem, setEditedItem] = useState<SupermarketListItem | null>(null);
+    const [showGradient, setShowGradient] = useState(true);
     const { setConfig } = useHeader();
 
     const newItemRef = useRef<HTMLInputElement>(null);
     const listContainerRef = useRef<HTMLDivElement>(null);
+
+    const onListScroll = () => {
+        const el = listContainerRef.current;
+        if (!el) return;
+        const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 4;
+        setShowGradient(!atBottom);
+    };
 
     /**
      * Load the most commons names, to support autocomplete
@@ -125,25 +133,28 @@ export default function ListScreen() {
 
     return (
         <GenericHomeScreen>
-            <div className="slist" ref={listContainerRef}>
-                {!addMode && !editMode &&
-                    <SupermarketList
-                        items={supermarketList}
-                        onItemClick={onItemClick}
-                        tickable={false}
-                    />
-                }
-                {addMode && <NewItem inputRef={newItemRef} onSave={onSaveNewItem} onCancel={() => { setAddMode(false); }} names={names} />}
-                {editMode && <NewItem item={editedItem} inputRef={newItemRef} onSave={onUpdateItem} onCancel={onItemDelete} names={names} />}
-            </div>
-
-            {!addMode && !editMode && <BottomBar onPress={onNewItem} />}
-
-            {editMode &&
-                <div className="flex justify-center pb-8">
-                    <RoundButton svgIconPath={{ src: "images/left-arrow.svg", alt: "Back" }} onClick={() => { setEditMode(false) }} />
+            <div className="list-screen">
+                <div className="slist" ref={listContainerRef} onScroll={onListScroll}>
+                    {!addMode && !editMode &&
+                        <SupermarketList
+                            items={supermarketList}
+                            onItemClick={onItemClick}
+                            tickable={false}
+                        />
+                    }
+                    {addMode && <NewItem inputRef={newItemRef} onSave={onSaveNewItem} onCancel={() => { setAddMode(false); }} names={names} />}
+                    {editMode && <NewItem item={editedItem} inputRef={newItemRef} onSave={onUpdateItem} onCancel={onItemDelete} names={names} />}
                 </div>
-            }
+
+                {!addMode && !editMode && showGradient && <div className="list-gradient" />}
+                {!addMode && !editMode && <BottomBar onPress={onNewItem} />}
+
+                {editMode &&
+                    <div className="flex justify-center pb-8">
+                        <RoundButton svgIconPath={{ src: "images/left-arrow.svg", alt: "Back" }} onClick={() => { setEditMode(false) }} />
+                    </div>
+                }
+            </div>
 
         </GenericHomeScreen>
     );

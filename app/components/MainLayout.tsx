@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthWrapper } from "./AuthWrapper";
 import SideMenu, { SideMenuItem, SideMenuToggleableItem } from "@/app/ui/SideMenu";
@@ -46,6 +46,7 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
 
   const [sseMessages, setSseMessages] = useState<SSEMessage[]>([{ event: "message", receivedAt: new Date().toISOString(), data: { message: "Hello!" } }]);
   const [sseActive, setSseActive] = useState(false);
+  const [chatDockHeightPx, setChatDockHeightPx] = useState(CHAT_DOCK_HEIGHT_PX);
 
   const menuItems = useMemo<SideMenuItem[]>(
     () => [
@@ -141,22 +142,60 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
               className="absolute left-0 right-0 overflow-y-auto"
               style={{
                 top: `${HEADER_HEIGHT_PX}px`,
-                bottom: chatMode ? `${CHAT_DOCK_HEIGHT_PX}px` : "0px",
+                bottom: chatMode ? `${chatDockHeightPx}px` : "0px",
               }}
             >
               {children}
             </div>
           </div>
         </HeaderProvider>
-        {chatMode && <ChatDock message={sseMessages?.[sseMessages.length - 1]?.data?.message} chatInputHandlers={chatInputHandlers} />}
+        {chatMode && (
+          <ChatDock
+            message={sseMessages?.[sseMessages.length - 1]?.data?.message}
+            chatInputHandlers={chatInputHandlers}
+            onHeightChange={setChatDockHeightPx}
+          />
+        )}
       </AuthWrapper>
     </>
   );
 }
 
-function ChatDock({ message, chatInputHandlers }: { message?: string; chatInputHandlers: ChatInputHandlers }) {
+function ChatDock({
+  message,
+  chatInputHandlers,
+  onHeightChange,
+}: {
+  message?: string;
+  chatInputHandlers: ChatInputHandlers;
+  onHeightChange: (height: number) => void;
+}) {
+  const dockRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!dockRef.current) {
+      return;
+    }
+
+    const element = dockRef.current;
+    const updateHeight = () => onHeightChange(Math.ceil(element.getBoundingClientRect().height));
+
+    updateHeight();
+
+    const observer = new ResizeObserver(() => {
+      updateHeight();
+    });
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [message, onHeightChange]);
+
   return (
     <div
+      ref={dockRef}
       className="fixed bottom-0 left-0 right-0 z-20 p-3"
       style={{
         backgroundColor: "var(--background)",

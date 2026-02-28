@@ -45,8 +45,8 @@ export default function SideMenu({ items = [], toggleableItems = [] }: SideMenuP
 
     return (
         <>
-            {/* Menu Icon - Fixed in top right */}
-            <div className="fixed top-5 right-4 z-40">
+            {/* Menu Icon - Fixed in top right, vertically centered in 64px header */}
+            <div className="fixed top-0 right-4 h-16 z-40 flex items-center">
                 <RoundButton
                     svgIconPath={{
                         src: "/images/menu.svg",
