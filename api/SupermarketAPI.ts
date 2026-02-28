@@ -123,21 +123,4 @@ export class SupermarketAPI {
         return new TotoAPI().fetch('galeBroker', `/conversations/${conversationId}/stream`);
     }
 
-    async mockPostMessage(): Promise<{ conversationId: string, messageId: string }> {
-        const payload = {
-            "agentId": "suppie",
-            "actor": "user",
-            "message": "Hey, add the following stuff: bananas, musli noa, bread, liua postai, eggs, bacon, pasta, speghettu"
-        }
-
-        return (await new TotoAPI().fetch('galeBroker', `/messages`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        })).json();
-    }
-
 }
