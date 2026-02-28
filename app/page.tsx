@@ -11,12 +11,6 @@ import { SupermarketAPI } from '@/api/SupermarketAPI';
 import { SupermarketListItem } from '@/model/SupermarketListItem';
 import { useHeader } from '@/context/HeaderContext';
 
-interface SSEMessage {
-    event: string;
-    data: unknown;
-    receivedAt: string;
-}
-
 const COLORS = [
     { bck: "#FFCC70", color: "#22668D" },
     { bck: "#FFFADD", color: "#22668D" },
@@ -31,8 +25,6 @@ export default function Home() {
     const [mainListItems, setMainListItems] = useState<SupermarketListItem[] | null>(null);
     const [loadingMainList, setLoadingMainList] = useState(false);
     const [animData, setAnimData] = useState<any>(null);
-    const [sseMessages, setSseMessages] = useState<SSEMessage[]>([]);
-    const [sseActive, setSseActive] = useState(false);
     const router = useRouter();
     const { setConfig } = useHeader();
 
@@ -55,47 +47,6 @@ export default function Home() {
         setLoadingMainList(false);
     };
 
-    const openSseStream = async () => {
-        setSseMessages([]);
-        setSseActive(true);
-
-        try {
-            const { conversationId } = await new SupermarketAPI().mockPostMessage();
-
-            const response = await new SupermarketAPI().streamConversationStatus(conversationId);
-            const reader = response.body?.getReader();
-            if (!reader) { setSseActive(false); return; }
-
-            const decoder = new TextDecoder();
-            let buffer = '';
-            let currentEvent = 'message';
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n');
-                buffer = lines.pop() ?? '';
-
-                for (const line of lines) {
-                    if (line.startsWith('event:')) {
-                        currentEvent = line.slice(6).trim();
-                    } else if (line.startsWith('data:')) {
-                        const raw = line.slice(5).trim();
-                        let data: unknown = raw;
-                        try { data = JSON.parse(raw); } catch { /* keep raw string */ }
-                        setSseMessages(prev => [...prev, { event: currentEvent, data, receivedAt: new Date().toISOString() }]);
-                        currentEvent = 'message';
-                    }
-                }
-            }
-        } catch (err) {
-            setSseMessages(prev => [...prev, { event: 'error', data: String(err), receivedAt: new Date().toISOString() }]);
-        } finally {
-            setSseActive(false);
-        }
-    };
 
     useEffect(() => {
         loadMainSupermarketList();

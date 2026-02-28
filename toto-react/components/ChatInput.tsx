@@ -33,6 +33,13 @@ export default function ChatInput({ handlers, }: ChatInputProps) {
     setMessage(event.target.value);
   };
 
+  const onKeyDownHandler = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && event.metaKey) {
+      event.preventDefault();
+      sendMessage();
+    }
+  };
+
   const sendMessage = async () => {
     const trimmedMessage = message.trim();
 
@@ -56,6 +63,7 @@ export default function ChatInput({ handlers, }: ChatInputProps) {
         <textarea
           ref={textareaRef}
           onChange={onChangeHandler}
+          onKeyDown={onKeyDownHandler}
           value={message}
           className="bg-transparent border-0 focus:outline-none w-full text-xl no-scrollbar"
           rows={1}
