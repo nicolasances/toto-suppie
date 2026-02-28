@@ -36,6 +36,9 @@ interface MainLayoutContentProps {
   children: React.ReactNode;
 }
 
+const HEADER_HEIGHT_PX = 64;
+const CHAT_DOCK_HEIGHT_PX = 96;
+
 function MainLayoutContent({ children }: MainLayoutContentProps) {
   const router = useRouter();
   const { carMode, toggleCarMode } = useCarMode();
@@ -130,22 +133,42 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
       <SideMenu items={menuItems} toggleableItems={toggleableItems} />
       <AuthWrapper>
         <HeaderProvider>
-          <AppHeader />
-          <div className={chatMode ? "pb-24" : ""}>{children}</div>
-        </HeaderProvider>
-        {chatMode && (
-          <div
-            className="fixed bottom-0 left-0 right-0 z-20 p-3"
-            style={{ backgroundColor: "var(--background)", borderColor: "var(--foreground-ghost)" }}
-          >
-            <div className="mb-4">
-              {sseMessages && sseMessages.length > 0 && <AgentMessage message={sseMessages[sseMessages.length - 1].data.message} />}
+          <div className="fixed inset-0 overflow-hidden">
+            <div className="absolute left-0 right-0 top-0" style={{ height: `${HEADER_HEIGHT_PX}px` }}>
+              <AppHeader />
             </div>
-            <ChatInput handlers={chatInputHandlers} />
+            <div
+              className="absolute left-0 right-0 overflow-y-auto"
+              style={{
+                top: `${HEADER_HEIGHT_PX}px`,
+                bottom: chatMode ? `${CHAT_DOCK_HEIGHT_PX}px` : "0px",
+              }}
+            >
+              {children}
+            </div>
           </div>
-        )}
+        </HeaderProvider>
+        {chatMode && <ChatDock message={sseMessages?.[sseMessages.length - 1]?.data?.message} chatInputHandlers={chatInputHandlers} />}
       </AuthWrapper>
     </>
+  );
+}
+
+function ChatDock({ message, chatInputHandlers }: { message?: string; chatInputHandlers: ChatInputHandlers }) {
+  return (
+    <div
+      className="fixed bottom-0 left-0 right-0 z-20 p-3"
+      style={{
+        backgroundColor: "var(--background)",
+        borderColor: "var(--foreground-ghost)",
+        paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
+      }}
+    >
+      <div className="mb-4">
+        {message && <AgentMessage message={message} />}
+      </div>
+      <ChatInput handlers={chatInputHandlers} />
+    </div>
   );
 }
 
