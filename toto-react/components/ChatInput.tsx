@@ -9,9 +9,10 @@ export interface ChatInputHandlers {
 
 interface ChatInputProps {
   handlers: ChatInputHandlers;
+  disabled?: boolean;
 }
 
-export default function ChatInput({ handlers, }: ChatInputProps) {
+export default function ChatInput({ handlers, disabled = false }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -45,7 +46,7 @@ export default function ChatInput({ handlers, }: ChatInputProps) {
   const sendMessage = async () => {
     const trimmedMessage = message.trim();
 
-    if (!trimmedMessage || isSending) {
+    if (!trimmedMessage || isSending || disabled) {
       return;
     }
 
@@ -67,7 +68,8 @@ export default function ChatInput({ handlers, }: ChatInputProps) {
           onChange={onChangeHandler}
           onKeyDown={onKeyDownHandler}
           value={message}
-          className="bg-transparent border-0 focus:outline-none w-full text-xl no-scrollbar pr-2"
+          disabled={disabled}
+          className="bg-transparent border-0 focus:outline-none w-full text-xl no-scrollbar pr-2 disabled:opacity-40 disabled:cursor-not-allowed"
           rows={1}
           style={{
             resize: "none",
@@ -90,7 +92,7 @@ export default function ChatInput({ handlers, }: ChatInputProps) {
               svgIconPath={{ src: "/images/send.svg", alt: "Send" }}
               onClick={() => void sendMessage()}
               size="s"
-              disabled={message.trim().length === 0}
+              disabled={disabled || message.trim().length === 0}
               type="filled"
             />
           )}

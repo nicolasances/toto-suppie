@@ -316,7 +316,7 @@ export function ChatDock({ sendMessage, streamConversationStatus, onHeightChange
           paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
         }}
       >
-        <ChatInput handlers={{ onSendMessage }} />
+        <ChatInput handlers={{ onSendMessage }} disabled={isWaiting || sseActive} />
       </div>
     </div>
   );
