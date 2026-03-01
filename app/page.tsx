@@ -81,27 +81,6 @@ export default function Home() {
                     {/* <SectionButton label="Teach me!" imageSrc="/images/monkey-body.svg" onPress={() => { router.push('/teach') }} /> */}
                 </div>
             }
-            {/* SSE Test Section */}
-            {/* <div style={{ marginTop: 32, padding: 16, background: '#1a1a2e', borderRadius: 12, color: '#eee', fontFamily: 'monospace' }}>
-                <div style={{ marginBottom: 12, fontWeight: 'bold', fontSize: 14 }}>SSE Stream Test</div>
-                <button
-                    onClick={openSseStream}
-                    disabled={sseActive}
-                    style={{ padding: '8px 16px', borderRadius: 8, background: sseActive ? '#555' : '#22668D', color: '#fff', border: 'none', cursor: sseActive ? 'default' : 'pointer', marginBottom: 12 }}
-                >
-                    {sseActive ? 'Streaming...' : 'Start Stream'}
-                </button>
-                <div style={{ maxHeight: 300, overflowY: 'auto' }}>
-                    {sseMessages.length === 0 && !sseActive && <div style={{ color: '#888', fontSize: 12 }}>No messages yet.</div>}
-                    {sseMessages.map((msg, i) => (
-                        <div key={i} style={{ marginBottom: 6, fontSize: 12 }}>
-                            <span style={{ color: '#FFCC70' }}>[{msg.receivedAt}]</span>{' '}
-                            <span style={{ color: '#8ECDDD' }}>{msg.event}</span>{' '}
-                            <span>{JSON.stringify(msg.data)}</span>
-                        </div>
-                    ))}
-                </div>
-            </div> */}
         </GenericHomeScreen>
     );
 }

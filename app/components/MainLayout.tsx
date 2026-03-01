@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthWrapper } from "./AuthWrapper";
 import SideMenu, { SideMenuItem, SideMenuToggleableItem } from "@/app/ui/SideMenu";
 import { CarModeContextProvider, useCarMode } from "@/toto-react/context/CarModeContext";
 import { ChatModeContextProvider, useChatMode } from "@/context/ChatModeContext";
-import ChatInput, { ChatInputHandlers } from "@/toto-react/components/ChatInput";
+import { ChatInputHandlers } from "@/toto-react/components/ChatInput";
+import { ChatDock } from "@/toto-react/components/ChatDock";
+import { AgentMessage } from "@/toto-react/components/AgentMessage";
 import { HeaderProvider } from "@/context/HeaderContext";
 import AppHeader from "./AppHeader";
 import { SuppieAgent } from "@/api/SupermarketAgent";
@@ -204,53 +206,3 @@ function AgentBubble({ message, bottomOffset }: { message: string | undefined; b
   );
 }
 
-function ChatDock({
-  chatInputHandlers,
-  onHeightChange,
-}: {
-  chatInputHandlers: ChatInputHandlers;
-  onHeightChange: (height: number) => void;
-}) {
-  const dockRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!dockRef.current) return;
-
-    const element = dockRef.current;
-    const updateHeight = () => onHeightChange(Math.ceil(element.getBoundingClientRect().height));
-
-    updateHeight();
-
-    const observer = new ResizeObserver(updateHeight);
-    observer.observe(element);
-
-    return () => observer.disconnect();
-  }, [onHeightChange]);
-
-  return (
-    <div
-      ref={dockRef}
-      className="fixed bottom-0 left-0 right-0 z-20 p-3"
-      style={{
-        backgroundColor: "var(--background)",
-        borderColor: "var(--foreground-ghost)",
-        paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
-      }}
-    >
-      <ChatInput handlers={chatInputHandlers} />
-    </div>
-  );
-}
-
-function AgentMessage({ message }: { message: string }) {
-
-  return (
-    <div className="relative pl-3 pr-10 opacity-90">
-      <div className="absolute w-2 h-2 top left-1 bg-cyan-400 rounded-full"></div>
-      <div className="absolute w-4 h-4 top left-2 bg-cyan-400 rounded-full"></div>
-      <div className="text-lg bg-cyan-400 px-4 py-2 rounded-3xl">
-        {message}
-      </div>
-    </div>
-  )
-}
