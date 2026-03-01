@@ -8,11 +8,13 @@ import { CarModeContextProvider, useCarMode } from "@/toto-react/context/CarMode
 import { ChatModeContextProvider, useChatMode } from "@/context/ChatModeContext";
 import { ChatInputHandlers } from "@/toto-react/components/ChatInput";
 import { ChatDock } from "@/toto-react/components/ChatDock";
-import { AgentMessage } from "@/toto-react/components/AgentMessage";
+import { AgentBubble } from "@/toto-react/components/AgentBubble";
+
 import { HeaderProvider } from "@/context/HeaderContext";
 import AppHeader from "./AppHeader";
 import { SuppieAgent } from "@/api/SupermarketAgent";
 import { SupermarketAPI } from "@/api/SupermarketAPI";
+import { WaitingForAgent } from "@/toto-react/components/WaitingForAgent";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -48,6 +50,7 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
 
   const [sseMessages, setSseMessages] = useState<SSEMessage[]>([{ event: "message", receivedAt: new Date().toISOString(), data: { message: "Hello" } }]);
   const [sseActive, setSseActive] = useState(false);
+  const [sendingMessage, setSendingMessage] = useState<boolean>(false);
   const [chatDockHeightPx, setChatDockHeightPx] = useState(CHAT_DOCK_HEIGHT_PX);
   const [visibleMessage, setVisibleMessage] = useState<string | undefined>(undefined);
 
@@ -73,6 +76,8 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
        * @param message 
        */
       onSendMessage: async (message: string) => {
+
+        setSendingMessage(true);
 
         const { conversationId } = await new SuppieAgent().postMessage(message);
 
@@ -169,6 +174,7 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
         {chatMode && (
           <>
             <AgentBubble message={visibleMessage} bottomOffset={chatDockHeightPx} />
+            {sendingMessage && <WaitingForAgent bottomOffset={chatDockHeightPx} />}
             <ChatDock
               chatInputHandlers={chatInputHandlers}
               onHeightChange={setChatDockHeightPx}
@@ -180,35 +186,4 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
   );
 }
 
-function AgentBubble({ message, bottomOffset }: { message: string | undefined; bottomOffset: number }) {
-  const [displayedMessage, setDisplayedMessage] = useState<string | undefined>();
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (message) {
-      setDisplayedMessage(message);
-      setVisible(true);
-    } else {
-      setVisible(false);
-      const t = setTimeout(() => setDisplayedMessage(undefined), 400);
-      return () => clearTimeout(t);
-    }
-  }, [message]);
-
-  if (!displayedMessage) return null;
-
-  return (
-    <div
-      className="fixed left-0 right-0 z-20 px-3"
-      style={{
-        bottom: `${bottomOffset}px`,
-        opacity: visible ? 1 : 0,
-        transition: "opacity 0.9s ease",
-        pointerEvents: "none",
-      }}
-    >
-      <AgentMessage message={displayedMessage} />
-    </div>
-  );
-}
 
