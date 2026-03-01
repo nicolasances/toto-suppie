@@ -6,15 +6,12 @@ import { AuthWrapper } from "./AuthWrapper";
 import SideMenu, { SideMenuItem, SideMenuToggleableItem } from "@/app/ui/SideMenu";
 import { CarModeContextProvider, useCarMode } from "@/toto-react/context/CarModeContext";
 import { ChatModeContextProvider, useChatMode } from "@/context/ChatModeContext";
-import { ChatInputHandlers } from "@/toto-react/components/ChatInput";
 import { ChatDock } from "@/toto-react/components/ChatDock";
-import { AgentBubble } from "@/toto-react/components/AgentBubble";
 
 import { HeaderProvider } from "@/context/HeaderContext";
 import AppHeader from "./AppHeader";
 import { SuppieAgent } from "@/api/SupermarketAgent";
 import { SupermarketAPI } from "@/api/SupermarketAPI";
-import { WaitingForAgent } from "@/toto-react/components/WaitingForAgent";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -69,24 +66,13 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
     [chatMode, toggleChatMode, carMode, toggleCarMode],
   );
 
-  const chatInputHandlers = useMemo<ChatInputHandlers>(
-    () => ({
-      /**
-       * Chat with Suppie Agent
-       * @param message 
-       */
-      onSendMessage: async (message: string) => {
+  const sendMessage = async (message: string) => {
 
-        setSendingMessage(true);
+    const { conversationId } = await new SuppieAgent().postMessage(message);
 
-        const { conversationId } = await new SuppieAgent().postMessage(message);
+    openSseStream(conversationId);
 
-        openSseStream(conversationId);
-
-      },
-    }),
-    [],
-  );
+  }
 
   const openSseStream = async (chatConversationId: string) => {
     setSseMessages([]);
@@ -140,13 +126,13 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
   useEffect(() => {
 
     const last = sseMessages?.[sseMessages.length - 1]?.data?.message;
-    
+
     if (!last) return;
-    
+
     setVisibleMessage(last);
-    
+
     const t = setTimeout(() => setVisibleMessage(undefined), 5000);
-    
+
     return () => clearTimeout(t);
 
   }, [sseMessages]);
@@ -172,14 +158,11 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
           </div>
         </HeaderProvider>
         {chatMode && (
-          <>
-            <AgentBubble message={visibleMessage} bottomOffset={chatDockHeightPx} />
-            {sendingMessage && <WaitingForAgent bottomOffset={chatDockHeightPx} />}
-            <ChatDock
-              chatInputHandlers={chatInputHandlers}
-              onHeightChange={setChatDockHeightPx}
-            />
-          </>
+          <ChatDock
+            sendMessage={sendMessage}
+            message={visibleMessage}
+            onHeightChange={setChatDockHeightPx}
+          />
         )}
       </AuthWrapper>
     </>
