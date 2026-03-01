@@ -1,11 +1,88 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import ChatInput, { ChatInputHandlers } from "@/toto-react/components/ChatInput";
+import { useEffect, useMemo, useRef, useState } from "react";
+import ChatInput from "@/toto-react/components/ChatInput";
 
+/**
+ * Props for the {@link ChatDock} component.
+ */
 export interface ChatDockProps {
+  /**
+   * Async function called when the user submits a message.
+   *
+   * The function receives the raw text typed by the user and must return a
+   * **conversation ID** string. If {@link streamConversationStatus} is also
+   * provided, the returned conversation ID is passed straight into that
+   * function to open the SSE stream for that conversation.
+   *
+   * @param message - The message text entered by the user.
+   * @returns A promise that resolves to the conversation ID produced by the backend.
+   *
+   * @example
+   * ```tsx
+   * const sendMessage = async (message: string) => {
+   *   const res = await fetch("/api/chat", {
+   *     method: "POST",
+   *     body: JSON.stringify({ message }),
+   *   });
+   *   const { conversationId } = await res.json();
+   *   return conversationId;
+   * };
+   * ```
+   */
   sendMessage: (message: string) => Promise<string>;
+
+  /**
+   * Optional async function that opens a **Server-Sent Events (SSE)** stream
+   * for a given conversation.
+   *
+   * When provided, `ChatDock` calls this function with the conversation ID
+   * returned by {@link sendMessage} and starts consuming the stream. Each
+   * `message` event is expected to carry a JSON payload with a `message`
+   * property (`{ message: string }`). Received messages are displayed in a
+   * floating agent-bubble above the input bar and auto-dismiss after 5 seconds.
+   *
+   * `done` / non-`message` events are silently ignored by the component.
+   *
+   * @param chatConversationId - The conversation ID to stream status for.
+   * @returns A promise that resolves to the raw `Response` object whose body
+   *   is the SSE stream.
+   *
+   * @example
+   * ```tsx
+   * const streamConversationStatus = async (chatConversationId: string) => {
+   *   return fetch(`/api/chat/${chatConversationId}/stream`);
+   * };
+   * ```
+   */
   streamConversationStatus?: (chatConversationId: string) => Promise<Response>;
+
+  /**
+   * Callback invoked whenever the height of the chat input section changes.
+   *
+   * `ChatDock` is rendered with `position: fixed` at the bottom of the
+   * viewport. Use this callback to add equivalent bottom padding to your
+   * scrollable content area so nothing is obscured by the dock.
+   *
+   * The value is measured via `ResizeObserver` and is already rounded up with
+   * `Math.ceil`, so it is safe to use directly as a CSS pixel value.
+   *
+   * @param height - The current height of the input section in pixels.
+   *
+   * @example
+   * ```tsx
+   * const [dockHeight, setDockHeight] = useState(0);
+   *
+   * return (
+   *   <>
+   *     <div style={{ paddingBottom: dockHeight }}>
+   *       {/* scrollable content *\/}
+   *     </div>
+   *     <ChatDock onHeightChange={setDockHeight} ... />
+   *   </>
+   * );
+   * ```
+   */
   onHeightChange: (height: number) => void;
 }
 
@@ -15,7 +92,56 @@ interface SSEMessage {
   receivedAt: string;
 }
 
-
+/**
+ * `ChatDock` is a fixed-position chat input bar that sticks to the bottom of
+ * the viewport. It handles the full lifecycle of a user message exchange:
+ *
+ * 1. **Input** – renders a {@link ChatInput} text field.
+ * 2. **Submission** – calls `sendMessage` with the user's text and awaits a
+ *    conversation ID.
+ * 3. **Streaming** – if `streamConversationStatus` is supplied, opens an SSE
+ *    stream for the returned conversation ID and displays each incoming
+ *    message in a floating "agent bubble" above the bar. Bubbles auto-dismiss
+ *    after 5 seconds with a fade-out transition.
+ * 4. **Waiting indicator** – shows an animated three-dot bouncing indicator
+ *    while the message is in-flight or while the SSE stream is active but no
+ *    message has been shown yet.
+ * 5. **Height reporting** – measures its own input-section height via
+ *    `ResizeObserver` and forwards it through `onHeightChange` so the parent
+ *    can apply matching bottom padding to any scrollable content.
+ *
+ * @example
+ * ```tsx
+ * import { ChatDock } from "@/toto-react/components/ChatDock";
+ *
+ * export default function Page() {
+ *   const [dockHeight, setDockHeight] = useState(0);
+ *
+ *   const sendMessage = async (message: string) => {
+ *     const res = await fetch("/api/chat", {
+ *       method: "POST",
+ *       body: JSON.stringify({ message }),
+ *     });
+ *     const { conversationId } = await res.json();
+ *     return conversationId;
+ *   };
+ *
+ *   const streamConversationStatus = async (id: string) =>
+ *     fetch(`/api/chat/${id}/stream`);
+ *
+ *   return (
+ *     <div style={{ paddingBottom: dockHeight }}>
+ *       {/* page content *\/}
+ *       <ChatDock
+ *         sendMessage={sendMessage}
+ *         streamConversationStatus={streamConversationStatus}
+ *         onHeightChange={setDockHeight}
+ *       />
+ *     </div>
+ *   );
+ * }
+ * ```
+ */
 export function ChatDock({ sendMessage, streamConversationStatus, onHeightChange }: ChatDockProps) {
 
   const inputRef = useRef<HTMLDivElement>(null);
@@ -91,21 +217,25 @@ export function ChatDock({ sendMessage, streamConversationStatus, onHeightChange
 
     setIsWaiting(true);
 
-    // Send the message to the agent
-    const conversationId = await sendMessage(message);
+    try {
+      // Send the message to the agent
+      const conversationId = await sendMessage(message);
 
-    // Start listening to the SSE stream for the conversation status if the streamConversationStatus function is provided
-    if (streamConversationStatus) openSseStream(conversationId);
-
-    setIsWaiting(false);
+      // Start listening to the SSE stream for the conversation status if the streamConversationStatus function is provided
+      if (streamConversationStatus) openSseStream(conversationId);
+    } finally {
+      setIsWaiting(false);
+    }
   }
 
   // Fade-in / fade-out logic for the agent bubble
   useEffect(() => {
+    
     if (visibleMessage) {
       setDisplayedMessage(visibleMessage);
       setMessageVisible(true);
-    } else {
+    } 
+    else {
       setMessageVisible(false);
       const t = setTimeout(() => setDisplayedMessage(undefined), 400);
       return () => clearTimeout(t);
@@ -132,14 +262,10 @@ export function ChatDock({ sendMessage, streamConversationStatus, onHeightChange
    * - the user has sent a message and the message is being sent to the server
    * - the SSE stream is active and there are no messages visible in the UI
    */
-  const showWaitingIndicator = () => {
-    
-    if (isWaiting) return true;
-
-    if (sseActive && !visibleMessage) return true;
-
-    return false;
-  }
+  const showWaitingIndicator = useMemo(
+    () => isWaiting || (sseActive && !visibleMessage),
+    [isWaiting, sseActive, visibleMessage]
+  );
 
   useEffect(() => {
 
@@ -177,7 +303,7 @@ export function ChatDock({ sendMessage, streamConversationStatus, onHeightChange
       )}
 
       {/* Waiting indicator */}
-      {showWaitingIndicator() && <WaitingIndicator />}
+      {showWaitingIndicator && <WaitingIndicator />}
 
       {/* Chat input */}
       <div
@@ -199,7 +325,7 @@ export function ChatDock({ sendMessage, streamConversationStatus, onHeightChange
 
 function WaitingIndicator() {
   return (
-    <div className="flex items-center gap-1 px-4 pb-1">
+    <div className="flex items-center gap-1 px-8 pb-1">
       {[0, 1, 2].map((i) => (
         <span
           key={i}
