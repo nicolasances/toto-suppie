@@ -46,7 +46,7 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
   const { carMode, toggleCarMode } = useCarMode();
   const { chatMode, toggleChatMode } = useChatMode();
 
-  const [sseMessages, setSseMessages] = useState<SSEMessage[]>([{ event: "message", receivedAt: new Date().toISOString(), data: { message: "Hello!" } }]);
+  const [sseMessages, setSseMessages] = useState<SSEMessage[]>([{ event: "message", receivedAt: new Date().toISOString(), data: { message: "Hello" } }]);
   const [sseActive, setSseActive] = useState(false);
   const [chatDockHeightPx, setChatDockHeightPx] = useState(CHAT_DOCK_HEIGHT_PX);
   const [visibleMessage, setVisibleMessage] = useState<string | undefined>(undefined);
@@ -133,11 +133,17 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
   };
 
   useEffect(() => {
+
     const last = sseMessages?.[sseMessages.length - 1]?.data?.message;
+    
     if (!last) return;
+    
     setVisibleMessage(last);
+    
     const t = setTimeout(() => setVisibleMessage(undefined), 5000);
+    
     return () => clearTimeout(t);
+
   }, [sseMessages]);
 
   return (
