@@ -16,13 +16,6 @@ import { SupermarketAPI } from "@/api/SupermarketAPI";
 interface MainLayoutProps {
   children: React.ReactNode;
 }
-
-interface SSEMessage {
-  event: string;
-  data: any;
-  receivedAt: string;
-}
-
 export function MainLayout({ children }: MainLayoutProps) {
   return (
     <CarModeContextProvider>
@@ -45,11 +38,7 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
   const { carMode, toggleCarMode } = useCarMode();
   const { chatMode, toggleChatMode } = useChatMode();
 
-  const [sseMessages, setSseMessages] = useState<SSEMessage[]>([{ event: "message", receivedAt: new Date().toISOString(), data: { message: "Hello" } }]);
-  const [sseActive, setSseActive] = useState(false);
-  const [sendingMessage, setSendingMessage] = useState<boolean>(false);
   const [chatDockHeightPx, setChatDockHeightPx] = useState(CHAT_DOCK_HEIGHT_PX);
-  const [visibleMessage, setVisibleMessage] = useState<string | undefined>(undefined);
 
   const menuItems = useMemo<SideMenuItem[]>(
     () => [
@@ -66,76 +55,13 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
     [chatMode, toggleChatMode, carMode, toggleCarMode],
   );
 
-  const sendMessage = async (message: string) => {
+  const sendMessage = async (message: string): Promise<string> => {
 
     const { conversationId } = await new SuppieAgent().postMessage(message);
 
-    openSseStream(conversationId);
+    return conversationId;
 
   }
-
-  const openSseStream = async (chatConversationId: string) => {
-    setSseMessages([]);
-    setSseActive(true);
-
-    try {
-      const response = await new SupermarketAPI().streamConversationStatus(chatConversationId);
-      const reader = response.body?.getReader();
-      if (!reader) { setSseActive(false); return; }
-
-      const decoder = new TextDecoder();
-      let buffer = '';
-      let currentEvent = 'message';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
-
-        for (const line of lines) {
-
-          if (line.startsWith('event:')) {
-            currentEvent = line.slice(6).trim();
-          }
-          else if (line.startsWith('data:')) {
-
-            const raw = line.slice(5).trim();
-
-            let data: unknown = raw;
-
-            try { data = JSON.parse(raw); } catch { /* keep raw string */ }
-
-            // Skip "done" events - only consider "message" events
-            if (currentEvent == 'message') setSseMessages(prev => [...prev, { event: currentEvent, data, receivedAt: new Date().toISOString() }]);
-
-            currentEvent = 'message';
-
-          }
-        }
-      }
-    } catch (err) {
-      setSseMessages(prev => [...prev, { event: 'error', data: String(err), receivedAt: new Date().toISOString() }]);
-    } finally {
-      setSseActive(false);
-    }
-  };
-
-  useEffect(() => {
-
-    const last = sseMessages?.[sseMessages.length - 1]?.data?.message;
-
-    if (!last) return;
-
-    setVisibleMessage(last);
-
-    const t = setTimeout(() => setVisibleMessage(undefined), 5000);
-
-    return () => clearTimeout(t);
-
-  }, [sseMessages]);
 
   return (
     <>
@@ -160,7 +86,7 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
         {chatMode && (
           <ChatDock
             sendMessage={sendMessage}
-            message={visibleMessage}
+            streamConversationStatus={async (chatConversationId: string) => { return await new SupermarketAPI().streamConversationStatus(chatConversationId); }}
             onHeightChange={setChatDockHeightPx}
           />
         )}
