@@ -304,7 +304,7 @@ export function ChatDock({ sendMessage, streamConversationStatus, onHeightChange
 
       {/* Waiting indicator */}
       {showWaitingIndicator && (
-          <WaitingIndicator />
+        <WaitingIndicator />
       )}
 
       {/* Chat input */}
