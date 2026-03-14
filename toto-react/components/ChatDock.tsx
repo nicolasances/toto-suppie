@@ -230,11 +230,11 @@ export function ChatDock({ sendMessage, streamConversationStatus, onHeightChange
 
   // Fade-in / fade-out logic for the agent bubble
   useEffect(() => {
-    
+
     if (visibleMessage) {
       setDisplayedMessage(visibleMessage);
       setMessageVisible(true);
-    } 
+    }
     else {
       setMessageVisible(false);
       const t = setTimeout(() => setDisplayedMessage(undefined), 400);
@@ -303,7 +303,9 @@ export function ChatDock({ sendMessage, streamConversationStatus, onHeightChange
       )}
 
       {/* Waiting indicator */}
-      {showWaitingIndicator && <WaitingIndicator />}
+      {showWaitingIndicator && (
+          <WaitingIndicator />
+      )}
 
       {/* Chat input */}
       <div

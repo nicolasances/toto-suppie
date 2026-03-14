@@ -51,10 +51,10 @@ export default function ChatInput({ handlers, disabled = false }: ChatInputProps
     }
 
     setIsSending(true);
+    setMessage("");
 
     try {
       await handlers.onSendMessage(trimmedMessage);
-      setMessage("");
     } finally {
       setIsSending(false);
     }
