@@ -11,6 +11,7 @@ interface UseVoiceRecordingOptions {
 interface UseVoiceRecordingReturn {
     isRecording: boolean;
     isSupported: boolean;
+    stream: MediaStream | null;
     startRecording: () => Promise<void>;
     stopRecording: () => Promise<void>;
     resetRecording: () => void;
@@ -26,6 +27,7 @@ export function useVoiceRecording(options: UseVoiceRecordingOptions = {}): UseVo
         return !!(navigator.mediaDevices?.getUserMedia);
     });
     const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
+    const [stream, setStream] = useState<MediaStream | null>(null);
 
     const audioChunksRef = useRef<Blob[]>([]);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -66,6 +68,9 @@ export function useVoiceRecording(options: UseVoiceRecordingOptions = {}): UseVo
 
             // Save the recorder instance to the ref so it can be accessed later
             mediaRecorderRef.current = mediaRecorder;
+
+            // Expose the stream so consumers (e.g. visualizers) can access it
+            setStream(stream);
 
             // When audio data is available (every 500ms), store it in the chunks array
             mediaRecorder.addEventListener('dataavailable', (event) => {
@@ -140,6 +145,9 @@ export function useVoiceRecording(options: UseVoiceRecordingOptions = {}): UseVo
                     console.log('Stopped track:', track.kind);
                 });
 
+                // Clear the exposed stream
+                setStream(null);
+
                 // Notify parent component with the final audio Blob
                 options.onRecordingComplete?.(audioBlob);
 
@@ -172,11 +180,13 @@ export function useVoiceRecording(options: UseVoiceRecordingOptions = {}): UseVo
             mediaRecorderRef.current = null;
         }
         setIsRecording(false);
+        setStream(null);
     }, []);
 
     return {
         isRecording,
         isSupported,
+        stream,
         startRecording,
         stopRecording,
         resetRecording,

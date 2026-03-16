@@ -4,6 +4,7 @@ import { useLayoutEffect, useRef, useState, useCallback } from "react";
 import RoundButton from "@/toto-react/components/buttons/RoundButton";
 import { MediaRecorderEvent, useVoiceRecording } from "@/toto-react/hooks/useVoiceRecording";
 import { WhisperAPI } from "@/toto-react/api/WhisperAPI";
+import { AudioVisualizer } from "@/toto-react/components/AudioVisualizer";
 
 type VoiceRecordingState = 'idle' | 'recordingRequested' | 'recordingStarted' | 'stoppingRecording' | 'transcribing';
 
@@ -44,7 +45,7 @@ export default function ChatInput({ handlers, disabled = false }: ChatInputProps
     if (event === 'recordingStarted') setVoiceState('recordingStarted');
   }, []);
 
-  const { startRecording, stopRecording } = useVoiceRecording({
+  const { startRecording, stopRecording, stream } = useVoiceRecording({
     onRecordingComplete,
     onEvent: onRecordingEvent,
   });
@@ -104,21 +105,25 @@ export default function ChatInput({ handlers, disabled = false }: ChatInputProps
   return (
     <div className="max-w-4xl mx-auto">
       <div className={`flex items-end border border-cyan-700 pl-6 pr-4 py-3 mb-2 shadow ${isExpanded ? "rounded-3xl" : "rounded-full"}`}>
-        <textarea
-          ref={textareaRef}
-          onChange={onChangeHandler}
-          onKeyDown={onKeyDownHandler}
-          value={message}
-          disabled={disabled || isVoiceBusy}
-          className="bg-transparent border-0 focus:outline-none w-full text-xl no-scrollbar pr-2 disabled:opacity-40 disabled:cursor-not-allowed"
-          rows={1}
-          style={{
-            resize: "none",
-            overflowY: message.length > 0 && (textareaRef.current?.scrollHeight ?? 0) > maxTextAreaHeight ? "auto" : "hidden",
-            minHeight: `${minTextAreaHeight}px`,
-            maxHeight: `${maxTextAreaHeight}px`,
-          }}
-        ></textarea>
+        <div className="relative flex-1 min-w-0">
+          <textarea
+            ref={textareaRef}
+            onChange={onChangeHandler}
+            onKeyDown={onKeyDownHandler}
+            value={message}
+            disabled={disabled || isVoiceBusy}
+            className="bg-transparent border-0 focus:outline-none w-full text-xl no-scrollbar pr-2 disabled:opacity-40 disabled:cursor-not-allowed"
+            rows={1}
+            style={{
+              resize: "none",
+              overflowY: message.length > 0 && (textareaRef.current?.scrollHeight ?? 0) > maxTextAreaHeight ? "auto" : "hidden",
+              minHeight: `${minTextAreaHeight}px`,
+              maxHeight: `${maxTextAreaHeight}px`,
+              paddingTop: "4px",
+            }}
+          ></textarea>
+          <AudioVisualizer stream={stream} isRecording={isRecordingActive} height={32} />
+        </div>
         <div className="flex justify-end fill-cyan-800 gap-2">
           {!message && !isRecordingActive && (
             <RoundButton
