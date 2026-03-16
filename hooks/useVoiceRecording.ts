@@ -1,0 +1,186 @@
+import { useState, useRef, useCallback } from 'react';
+
+export type MediaRecorderEvent = 'recordingStarted' | 'error';
+
+interface UseVoiceRecordingOptions {
+    onRecordingComplete?: (audioBlob: Blob) => void;
+    onEvent?: (event: MediaRecorderEvent) => void;
+    deviceId?: string;
+}
+
+interface UseVoiceRecordingReturn {
+    isRecording: boolean;
+    isSupported: boolean;
+    startRecording: () => Promise<void>;
+    stopRecording: () => Promise<void>;
+    resetRecording: () => void;
+    audioDevices: MediaDeviceInfo[];
+    loadAudioDevices: () => Promise<void>;
+}
+
+export function useVoiceRecording(options: UseVoiceRecordingOptions = {}): UseVoiceRecordingReturn {
+
+    const [isRecording, setIsRecording] = useState(false);
+    const [isSupported] = useState(() => {
+        if (typeof window === 'undefined') return false;
+        return !!(navigator.mediaDevices?.getUserMedia);
+    });
+    const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
+
+    const audioChunksRef = useRef<Blob[]>([]);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
+    const loadAudioDevices = useCallback(async () => {
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const audioInputs = devices.filter(device => device.kind === 'audioinput');
+            setAudioDevices(audioInputs);
+            console.log('Available audio devices:', audioInputs);
+        } catch (error) {
+            console.error('Error enumerating audio devices:', error);
+        }
+    }, []);
+
+    const startRecording = useCallback(async () => {
+        if (!isSupported) {
+            console.warn('Voice recording is not supported in this browser');
+            return;
+        }
+
+        try {
+            // Clear any previously recorded audio
+            audioChunksRef.current = [];
+
+            // Request access to the user's microphone
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    deviceId: options.deviceId ? { exact: options.deviceId } : undefined,
+                    echoCancellation: true,
+                    noiseSuppression: false,
+                    autoGainControl: true,
+                }
+            });
+
+            // Create a new MediaRecorder instance using the audio stream
+            const mediaRecorder = new MediaRecorder(stream);
+
+            // Save the recorder instance to the ref so it can be accessed later
+            mediaRecorderRef.current = mediaRecorder;
+
+            // When audio data is available (every 500ms), store it in the chunks array
+            mediaRecorder.addEventListener('dataavailable', (event) => {
+                console.log('dataavailable event:', event.data.size, 'bytes');
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+                }
+            });
+
+            mediaRecorder.addEventListener('start', () => {
+                console.log('MediaRecorder started');
+                options.onEvent?.('recordingStarted');
+            });
+
+            mediaRecorder.addEventListener('error', (event) => {
+                console.error('MediaRecorder error:', event.error);
+                options.onEvent?.('error');
+            });
+
+            // Start recording and collect audio chunks every 500ms
+            mediaRecorder.start(500);
+
+            // Set recording state to true
+            setIsRecording(true);
+
+            console.log('Recording started');
+
+        } catch (error) {
+            console.error('Error accessing microphone:', error);
+            options.onEvent?.('error');
+        }
+    }, [isSupported, options.deviceId]);
+
+    /**
+     * Stops the voice recording
+     */
+    const stopRecording = useCallback(async () => {
+
+        return new Promise<void>((resolve) => {
+
+            // Update recording state to false
+            setIsRecording(false);
+
+            if (!mediaRecorderRef.current) {
+                resolve();
+                return;
+            }
+
+            const mediaRecorder = mediaRecorderRef.current;
+
+            // Set up a timeout fallback for iOS Safari where events might not fire reliably
+            const timeoutId = setTimeout(() => {
+                console.warn('Stop event timeout - forcing cleanup');
+                cleanup();
+                resolve();
+            }, 1000);
+
+            const cleanup = () => {
+                clearTimeout(timeoutId);
+
+                console.log('Recording stopped. Total chunks:', audioChunksRef.current.length);
+
+                // Combine the audio chunks into a single Blob
+                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+
+                console.log('Created audio blob with size:', audioBlob.size, 'bytes');
+
+                // Stop all tracks from the media stream to release the microphone FIRST
+                // This is critical for iOS Safari
+                mediaRecorder.stream.getTracks().forEach((track) => {
+                    track.stop();
+                    console.log('Stopped track:', track.kind);
+                });
+
+                // Notify parent component with the final audio Blob
+                options.onRecordingComplete?.(audioBlob);
+
+                // Clear the reference
+                mediaRecorderRef.current = null;
+            };
+
+            // When recording stops, combine chunks and trigger callback
+            mediaRecorder.addEventListener('stop', () => {
+                cleanup();
+                resolve();
+            }, { once: true });
+
+            // Stop the media recorder (this triggers the 'stop' event)
+            try {
+                if (mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+            } catch (error) {
+                console.error('Error stopping media recorder:', error);
+                cleanup();
+                resolve();
+            }
+        });
+    }, [options]);
+
+    const resetRecording = useCallback(() => {
+        audioChunksRef.current = [];
+        if (mediaRecorderRef.current) {
+            mediaRecorderRef.current = null;
+        }
+        setIsRecording(false);
+    }, []);
+
+    return {
+        isRecording,
+        isSupported,
+        startRecording,
+        stopRecording,
+        resetRecording,
+        audioDevices,
+        loadAudioDevices,
+    };
+}
