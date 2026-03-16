@@ -125,7 +125,7 @@ export function AudioVisualizer({ stream, isRecording, height }: AudioVisualizer
     <div
       ref={containerRef}
       className="absolute inset-0 flex items-center overflow-hidden pointer-events-none"
-      style={{ paddingLeft: 2, paddingRight: 2, height: `${height}px`, maxHeight: `${height}px` }}
+      style={{ paddingLeft: 2, paddingRight: BAR_GAP * 3, height: `${height}px`, maxHeight: `${height}px`, marginRight: BAR_GAP * 3 }}
       aria-hidden="true"
     >
       {bars.map((bar) => (
