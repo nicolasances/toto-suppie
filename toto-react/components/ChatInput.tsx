@@ -119,9 +119,10 @@ export default function ChatInput({ handlers, disabled = false }: ChatInputProps
               overflowY: message.length > 0 && (textareaRef.current?.scrollHeight ?? 0) > maxTextAreaHeight ? "auto" : "hidden",
               minHeight: `${minTextAreaHeight}px`,
               maxHeight: `${maxTextAreaHeight}px`,
+              paddingTop: "4px",
             }}
           ></textarea>
-          <AudioVisualizer stream={stream} isRecording={isRecordingActive} />
+          <AudioVisualizer stream={stream} isRecording={isRecordingActive} height={32} />
         </div>
         <div className="flex justify-end fill-cyan-800 gap-2">
           {!message && !isRecordingActive && (

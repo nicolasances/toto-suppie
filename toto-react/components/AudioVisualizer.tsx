@@ -26,6 +26,8 @@ export interface AudioVisualizerProps {
   stream: MediaStream | null;
   /** Whether recording is currently active. */
   isRecording: boolean;
+  /** Height of the visualizer container in pixels. */
+  height: number;
 }
 
 /**
@@ -35,7 +37,7 @@ export interface AudioVisualizerProps {
  * Bars scroll from right to left: new bars are appended on the right and
  * the oldest bars are removed from the left once the container is full.
  */
-export function AudioVisualizer({ stream, isRecording }: AudioVisualizerProps) {
+export function AudioVisualizer({ stream, isRecording, height }: AudioVisualizerProps) {
   const [bars, setBars] = useState<Bar[]>([]);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -123,7 +125,7 @@ export function AudioVisualizer({ stream, isRecording }: AudioVisualizerProps) {
     <div
       ref={containerRef}
       className="absolute inset-0 flex items-center overflow-hidden pointer-events-none"
-      style={{ paddingLeft: 2, paddingRight: 2 }}
+      style={{ paddingLeft: 2, paddingRight: 2, height: `${height}px`, maxHeight: `${height}px` }}
       aria-hidden="true"
     >
       {bars.map((bar) => (
@@ -132,6 +134,7 @@ export function AudioVisualizer({ stream, isRecording }: AudioVisualizerProps) {
           style={{
             width: BAR_WIDTH,
             height: `${bar.height}%`,
+            maxHeight: `${height}px`,
             backgroundColor: "rgb(8, 145, 178)",
             borderRadius: 2,
             flexShrink: 0,
