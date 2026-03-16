@@ -122,6 +122,7 @@ export default function ChatInput({ handlers, disabled = false }: ChatInputProps
               paddingTop: "4px",
             }}
           ></textarea>
+          {voiceState === 'transcribing' && <div className="absolute inset-0 mt-[4px] italic text-cyan-700">Transcribing...</div>}
           <AudioVisualizer stream={stream} isRecording={isRecordingActive} height={32} />
         </div>
         <div className="flex justify-end fill-cyan-800 gap-2">
