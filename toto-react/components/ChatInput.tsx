@@ -126,7 +126,7 @@ export default function ChatInput({ handlers, disabled = false }: ChatInputProps
           <AudioVisualizer stream={stream} isRecording={isRecordingActive} height={32} />
         </div>
         <div className="flex justify-end fill-cyan-800 gap-2">
-          {!message && !isRecordingActive && (
+          {!message && !isSending && !disabled && !isRecordingActive && (
             <RoundButton
               svgIconPath={{ src: "/images/microphone.svg", alt: "Talk" }}
               onClick={() => void toggleRecording()}
