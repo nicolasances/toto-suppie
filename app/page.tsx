@@ -12,6 +12,8 @@ import { SupermarketListItem } from '@/model/SupermarketListItem';
 import { useHeader } from '@/context/HeaderContext';
 import RoundButton from './components/buttons/RoundButton';
 
+const HINT_DURATION_MS = 5000;
+
 const COLORS = [
     { bck: "#FFCC70", color: "#22668D" },
     { bck: "#FFFADD", color: "#22668D" },
@@ -26,6 +28,7 @@ export default function Home() {
     const [mainListItems, setMainListItems] = useState<SupermarketListItem[] | null>(null);
     const [loadingMainList, setLoadingMainList] = useState(false);
     const [animData, setAnimData] = useState<any>(null);
+    const [showHints, setShowHints] = useState(true);
     const router = useRouter();
     const { setConfig } = useHeader();
 
@@ -58,6 +61,11 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
+        const timer = setTimeout(() => setShowHints(false), HINT_DURATION_MS);
+        return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
         setConfig({ title: 'Toto Suppie' });
     }, [setConfig]);
 
@@ -67,30 +75,54 @@ export default function Home() {
 
             {!loadingMainList && mainListItems &&
                 <div className="flex flex-col flex-1 items-center justify-center gap-6" style={{marginTop: -64}}>
-                    <RoundButton 
-                        svgIconPath={{ src: "/images/edit.svg", alt: "Edit List" }}
-                        onClick={() => { router.push('/list') }} 
-                        size="car"
-                        type="primary"
-                    />
-                    {mainListItems && mainListItems?.length > 0 && 
+                    <div className="flex items-center gap-4">
                         <RoundButton 
-                            svgIconPath={{ src: "/images/cart.svg", alt: "Start Shopping" }}
-                            onClick={() => { router.push('/shop') }} 
+                            svgIconPath={{ src: "/images/edit.svg", alt: "Edit List" }}
+                            onClick={() => { router.push('/list') }} 
                             size="car"
-                            type="filled"
+                            type="primary"
                         />
+                        <HintBubble show={showHints} text="Edit your list" />
+                    </div>
+                    {mainListItems && mainListItems?.length > 0 && 
+                        <div className="flex items-center gap-4">
+                            <RoundButton 
+                                svgIconPath={{ src: "/images/cart.svg", alt: "Start Shopping" }}
+                                onClick={() => { router.push('/shop') }} 
+                                size="car"
+                                type="filled"
+                            />
+                            <HintBubble show={showHints} text="Start shopping" />
+                        </div>
                     }
-                    <RoundButton
-                        svgIconPath={{ src: "/images/agent.svg", alt: "Agent Mode" }}
-                        onClick={() => { router.push('/agent') }}
-                        size="car"
-                        type="filledSecondary"
-                    />
+                    <div className="flex items-center gap-4">
+                        <RoundButton
+                            svgIconPath={{ src: "/images/agent.svg", alt: "Agent Mode" }}
+                            onClick={() => { router.push('/agent') }}
+                            size="car"
+                            type="filledSecondary"
+                        />
+                        <HintBubble show={showHints} text="Talk to Toto!" />
+                    </div>
                     {/* <SectionButton label="Teach me!" imageSrc="/images/monkey-body.svg" onPress={() => { router.push('/teach') }} /> */}
                 </div>
             }
         </GenericHomeScreen>
+    );
+}
+
+function HintBubble({ show, text }: { show: boolean; text: string }) {
+    return (
+        <div
+            className={`transition-opacity duration-700 ${show ? 'opacity-100' : 'opacity-0'} pointer-events-none`}
+            role="status"
+            aria-live="polite"
+            aria-label={text}
+        >
+            <div className="rounded-full px-4 py-2 bg-white/70 text-sm text-gray-500 shadow-sm whitespace-nowrap border border-gray-100">
+                {text}
+            </div>
+        </div>
     );
 }
 
