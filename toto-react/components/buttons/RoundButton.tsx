@@ -59,6 +59,8 @@ export default function RoundButton({
     const enabledClasses =
         visualType === "filled"
             ? "border-lime-200 bg-lime-200"
+            : visualType === "primary"
+                ? "border-lime-200"
             : visualType === "filledSecondary"
                 ? "border-cyan-600 bg-cyan-600"
             : visualType === "secondary"
@@ -74,13 +76,13 @@ export default function RoundButton({
     const iconColor = disabled || loading
         ? "text-cyan-600"
         : visualType === "primary"
-            ? "text-cyan-600"
+            ? "text-lime-200"
             : "text-cyan-800";
 
     const svgIconColor = disabled || loading
         ? "bg-cyan-600"
         : visualType === "primary"
-            ? "bg-cyan-600"
+            ? "bg-lime-200"
             : "bg-cyan-800";
 
     const animatedCircleRadius = 15;

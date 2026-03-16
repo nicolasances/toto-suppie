@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { SupermarketAPI } from '@/api/SupermarketAPI';
 import { SupermarketListItem } from '@/model/SupermarketListItem';
 import { useHeader } from '@/context/HeaderContext';
+import RoundButton from './components/buttons/RoundButton';
 
 const COLORS = [
     { bck: "#FFCC70", color: "#22668D" },
@@ -65,19 +66,27 @@ export default function Home() {
             {loadingMainList && animData && <Lottie animationData={animData} loop={true} />}
 
             {!loadingMainList && mainListItems &&
-                <div className="home-container">
-                    <SectionButton 
-                        label={`${mainListItems && mainListItems.length > 0 ? 'Edit the List' : 'Start a List'}`} 
-                        imageSrc="/images/list.svg"
-                        onPress={() => { router.push('/list') }} 
+                <div className="flex flex-col flex-1 items-center justify-center gap-6" style={{marginTop: -64}}>
+                    <RoundButton 
+                        svgIconPath={{ src: "/images/edit.svg", alt: "Edit List" }}
+                        onClick={() => { router.push('/list') }} 
+                        size="car"
+                        type="primary"
                     />
                     {mainListItems && mainListItems?.length > 0 && 
-                        <SectionButton 
-                            label="Start shopping!" 
-                            imageSrc="/images/cart.svg"
-                            onPress={() => { router.push('/shop') }} 
+                        <RoundButton 
+                            svgIconPath={{ src: "/images/cart.svg", alt: "Start Shopping" }}
+                            onClick={() => { router.push('/shop') }} 
+                            size="car"
+                            type="filled"
                         />
                     }
+                    <RoundButton
+                        svgIconPath={{ src: "/images/agent.svg", alt: "Agent Mode" }}
+                        onClick={() => { router.push('/agent') }}
+                        size="car"
+                        type="filledSecondary"
+                    />
                     {/* <SectionButton label="Teach me!" imageSrc="/images/monkey-body.svg" onPress={() => { router.push('/teach') }} /> */}
                 </div>
             }
@@ -93,7 +102,7 @@ function SectionButton(props: { label: string; imageSrc: string; onPress?: () =>
             <div className="image" style={{ backgroundColor: color.bck, color: color.color }}>
                 <Image src={props.imageSrc} alt={props.label} width={48} height={48} />
             </div>
-            <div className="label">{props.label}</div>
+            {/* <div className="label">{props.label}</div> */}
         </TouchableOpacity>
     );
 }
