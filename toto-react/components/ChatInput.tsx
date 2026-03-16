@@ -2,8 +2,8 @@
 
 import { useLayoutEffect, useRef, useState, useCallback } from "react";
 import RoundButton from "@/toto-react/components/buttons/RoundButton";
-import { MediaRecorderEvent, useVoiceRecording } from "@/hooks/useVoiceRecording";
-import { WhisperAPI } from "@/api/WhisperAPI";
+import { MediaRecorderEvent, useVoiceRecording } from "@/toto-react/hooks/useVoiceRecording";
+import { WhisperAPI } from "@/toto-react/api/WhisperAPI";
 
 type VoiceRecordingState = 'idle' | 'recordingRequested' | 'recordingStarted' | 'stoppingRecording' | 'transcribing';
 
