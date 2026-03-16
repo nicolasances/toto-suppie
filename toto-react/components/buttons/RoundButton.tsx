@@ -52,9 +52,9 @@ export default function RoundButton({
         if (onClick) onClick();
     };
 
-    const hasBorder =
-        visualType === "primary" || visualType === "filled" || visualType === "filledSecondary";
-    const baseClasses = `rounded-full ${buttonPadding} ${hasBorder ? "border-2" : ""} cursor-pointer transition-transform duration-100`;
+    const hasBorder = !loading &&
+        (visualType === "primary" || visualType === "filled" || visualType === "filledSecondary");
+    const baseClasses = `flex items-center justify-center rounded-full ${buttonPadding} ${hasBorder ? "border-2" : ""} cursor-pointer transition-transform duration-100`;
 
     const enabledClasses =
         visualType === "filled"
