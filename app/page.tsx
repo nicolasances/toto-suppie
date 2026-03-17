@@ -75,7 +75,7 @@ export default function Home() {
 
             {!loadingMainList && mainListItems &&
                 <div className="flex flex-col flex-1 items-center justify-center gap-6" style={{marginTop: -64}}>
-                    <div className="flex items-center gap-4">
+                    <div className="relative">
                         <RoundButton 
                             svgIconPath={{ src: "/images/edit.svg", alt: "Edit List" }}
                             onClick={() => { router.push('/list') }} 
@@ -85,17 +85,17 @@ export default function Home() {
                         <HintBubble show={showHints} text="Edit your list" />
                     </div>
                     {mainListItems && mainListItems?.length > 0 && 
-                        <div className="flex items-center gap-4">
+                        <div className="relative">
                             <RoundButton 
                                 svgIconPath={{ src: "/images/cart.svg", alt: "Start Shopping" }}
                                 onClick={() => { router.push('/shop') }} 
                                 size="car"
                                 type="filled"
                             />
-                            <HintBubble show={showHints} text="Start shopping" />
+                            <HintBubble show={showHints} text="Start shopping" position="right" />
                         </div>
                     }
-                    <div className="flex items-center gap-4">
+                    <div className="relative">
                         <RoundButton
                             svgIconPath={{ src: "/images/agent.svg", alt: "Agent Mode" }}
                             onClick={() => { router.push('/agent') }}
@@ -111,15 +111,15 @@ export default function Home() {
     );
 }
 
-function HintBubble({ show, text }: { show: boolean; text: string }) {
+function HintBubble({ show, text, position }: { show: boolean; text: string, position?: "right" | "left" }) {
     return (
         <div
-            className={`transition-opacity duration-700 ${show ? 'opacity-100' : 'opacity-0'} pointer-events-none`}
+            className={`absolute top-1/2 ${position === "right" ? "left-full" : "right-full"} -translate-y-1/2 ml-3 transition-opacity duration-700 ${show ? 'opacity-100' : 'opacity-0'} pointer-events-none`}
             role="status"
             aria-live="polite"
             aria-label={text}
         >
-            <div className="rounded-full px-4 py-2 bg-white/70 text-sm text-gray-500 shadow-sm whitespace-nowrap border border-gray-100">
+            <div className="rounded-full px-4 py-2 text-base text-gray-600 whitespace-nowrap">
                 {text}
             </div>
         </div>
