@@ -21,6 +21,15 @@ interface Bar {
   height: number;
 }
 
+export type AudioVisualizerTheme = "default" | "dark" | "light" | "accent";
+
+const THEME_CLASS: Record<AudioVisualizerTheme, string> = {
+  default: "bg-cyan-600",
+  dark: "bg-cyan-800",
+  light: "bg-cyan-200",
+  accent: "bg-lime-200",
+};
+
 export interface AudioVisualizerProps {
   /** The live microphone MediaStream; null when not recording. */
   stream: MediaStream | null;
@@ -28,6 +37,8 @@ export interface AudioVisualizerProps {
   isRecording: boolean;
   /** Height of the visualizer container in pixels. */
   height: number;
+  /** Color theme for the bars. Defaults to "default" (cyan-600). */
+  theme?: AudioVisualizerTheme;
 }
 
 /**
@@ -37,7 +48,7 @@ export interface AudioVisualizerProps {
  * Bars scroll from right to left: new bars are appended on the right and
  * the oldest bars are removed from the left once the container is full.
  */
-export function AudioVisualizer({ stream, isRecording, height }: AudioVisualizerProps) {
+export function AudioVisualizer({ stream, isRecording, height, theme = "default" }: AudioVisualizerProps) {
   const [bars, setBars] = useState<Bar[]>([]);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -131,11 +142,11 @@ export function AudioVisualizer({ stream, isRecording, height }: AudioVisualizer
       {bars.map((bar) => (
         <div
           key={bar.id}
+          className={THEME_CLASS[theme]}
           style={{
             width: BAR_WIDTH,
             height: `${bar.height}%`,
             maxHeight: `${height}px`,
-            backgroundColor: "rgb(8, 145, 178)",
             borderRadius: 2,
             flexShrink: 0,
             marginRight: BAR_GAP,
