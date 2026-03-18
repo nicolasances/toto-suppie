@@ -116,7 +116,7 @@ export default function AgentScreen() {
 
     return (
         <GenericHomeScreen>
-            <div className="flex flex-col items-center justify-center flex-1">
+            <div className={`flex flex-col items-center flex-1 ${(pageState === 'agentProcessing' || pageState === 'done') ? 'justify-start pt-8' : 'justify-center'}`}>
 
                 {/* Idle / Recording states – show mic or stop button in the center */}
                 {(pageState === 'idle' || pageState === 'recordingRequested' || pageState === 'recordingStarted' || pageState === 'stoppingRecording') && (
@@ -159,18 +159,21 @@ export default function AgentScreen() {
                             </div>
                         )}
 
-                        {/* Reset button once the stream is complete */}
-                        {pageState === 'done' && (
-                            <RoundButton
-                                svgIconPath={{ src: "/images/close.svg", alt: "Clear" }}
-                                onClick={reset}
-                                size="m"
-                                type="filledSecondary"
-                            />
-                        )}
                     </div>
                 )}
             </div>
+
+            {/* Fixed bottom: Clear button once the stream is complete */}
+            {pageState === 'done' && (
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2">
+                    <RoundButton
+                        svgIconPath={{ src: "/images/close.svg", alt: "Clear" }}
+                        onClick={reset}
+                        size="m"
+                        type="primary"
+                    />
+                </div>
+            )}
 
             {/* Fixed bottom: AudioVisualizer while recording */}
             {isRecordingActive && (
