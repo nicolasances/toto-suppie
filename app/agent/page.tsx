@@ -113,32 +113,11 @@ export default function AgentScreen() {
     };
 
     const isRecordingActive = pageState === 'recordingStarted';
+    const isRecordingLayout = pageState === 'recordingStarted' || pageState === 'stoppingRecording';
 
     return (
         <GenericHomeScreen>
             <div className={`flex flex-col items-center flex-1 ${(pageState === 'agentProcessing' || pageState === 'done') ? 'justify-start pt-8' : 'justify-center'}`}>
-
-                {/* Idle / Recording states – show mic or stop button in the center */}
-                {(pageState === 'idle' || pageState === 'recordingRequested' || pageState === 'recordingStarted' || pageState === 'stoppingRecording') && (
-                    <div className="flex flex-col items-center gap-4">
-                        {!isRecordingActive ? (
-                            <RoundButton
-                                svgIconPath={{ src: "/images/microphone.svg", alt: "Talk" }}
-                                onClick={() => void toggleRecording()}
-                                size="m"
-                                type="filledSecondary"
-                                disabled={pageState === 'recordingRequested' || pageState === 'stoppingRecording'}
-                            />
-                        ) : (
-                            <RoundButton
-                                svgIconPath={{ src: "/images/stop-recording.svg", alt: "Stop Recording" }}
-                                onClick={() => void toggleRecording()}
-                                size="m"
-                                type="filledSecondary"
-                            />
-                        )}
-                    </div>
-                )}
 
                 {/* Agent processing / done states */}
                 {(pageState === 'agentProcessing' || pageState === 'done') && (
@@ -175,10 +154,42 @@ export default function AgentScreen() {
                 </div>
             )}
 
-            {/* Fixed bottom: AudioVisualizer while recording */}
-            {isRecordingActive && (
-                <div className="fixed bottom-0 left-0 right-0 h-16">
-                    <AudioVisualizer stream={stream} isRecording={isRecordingActive} height={64} />
+            {/* Fixed bottom: mic/stop button + audio visualizer */}
+            {(pageState === 'idle' || pageState === 'recordingRequested' || pageState === 'recordingStarted' || pageState === 'stoppingRecording') && (
+                <div className="fixed bottom-0 left-0 right-0 h-20">
+                    {/* AudioVisualizer: slides in from the left when recording starts */}
+                    <div
+                        className="absolute inset-y-0 left-0 transition-all duration-500 ease-in-out"
+                        style={{
+                            right: isRecordingLayout ? '68px' : '100%',
+                            opacity: isRecordingLayout ? 1 : 0,
+                        }}
+                    >
+                        <AudioVisualizer stream={stream} isRecording={isRecordingActive} height={80} theme="dark" />
+                    </div>
+
+                    {/* Button: slides from center to bottom-right when recording starts */}
+                    <div
+                        className="absolute top-1/2 -translate-y-1/2 transition-all duration-500 ease-in-out"
+                        style={{ right: isRecordingLayout ? '12px' : 'calc(50% - 22px)' }}
+                    >
+                        {!isRecordingActive ? (
+                            <RoundButton
+                                svgIconPath={{ src: "/images/microphone.svg", alt: "Talk" }}
+                                onClick={() => void toggleRecording()}
+                                size="m"
+                                type="filledSecondary"
+                                disabled={pageState === 'recordingRequested' || pageState === 'stoppingRecording'}
+                            />
+                        ) : (
+                            <RoundButton
+                                svgIconPath={{ src: "/images/stop-recording.svg", alt: "Stop Recording" }}
+                                onClick={() => void toggleRecording()}
+                                size="m"
+                                type="filledSecondary"
+                            />
+                        )}
+                    </div>
                 </div>
             )}
 

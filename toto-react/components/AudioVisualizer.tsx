@@ -11,7 +11,7 @@ const BAR_GAP = 2;
  *  frequency value from `getByteFrequencyData` is divided by 255 (max byte
  *  value) then multiplied by this factor so that typical speech (avg ~30–60
  *  out of 255) maps to a useful bar height percentage. */
-const AMPLITUDE_MULTIPLIER = 300;
+const AMPLITUDE_MULTIPLIER = 400;
 
 /** How often (ms) a new bar sample is captured */
 const SAMPLE_INTERVAL_MS = 80;
