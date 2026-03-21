@@ -72,7 +72,8 @@ export default function AgentScreen() {
                 for (const line of lines) {
                     if (line.startsWith('event:')) {
                         currentEvent = line.slice(6).trim();
-                    } else if (line.startsWith('data:') && currentEvent === 'message') {
+                    } 
+                    else if (line.startsWith('data:') && currentEvent === 'message') {
                         try {
                             const data = JSON.parse(line.slice(5).trim());
                             if (data.message) {
@@ -128,7 +129,7 @@ export default function AgentScreen() {
 
                         {/* Agent messages accumulated from the SSE stream */}
                         {agentMessages.map((msg, i) => (
-                            <div key={i} className="text-lg bg-cyan-400 px-4 py-2 rounded-3xl opacity-90">
+                            <div key={i} className={`text-lg px-4 py-2 rounded-3xl opacity-90 ${i == agentMessages.length - 1 ? 'text-cyan-900' : 'text-cyan-700'}`}>
                                 {msg}
                             </div>
                         ))}
