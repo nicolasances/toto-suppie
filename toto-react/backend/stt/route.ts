@@ -15,7 +15,8 @@ export async function POST(request: NextRequest) {
 
         const client = new speech.SpeechClient();
 
-        const encoding = audioFile.type.includes('mp4')
+        const isMp4 = audioFile.type.includes('mp4');
+        const encoding = isMp4
             ? speech.protos.google.cloud.speech.v1.RecognitionConfig.AudioEncoding.MP3
             : speech.protos.google.cloud.speech.v1.RecognitionConfig.AudioEncoding.WEBM_OPUS;
 
@@ -23,6 +24,7 @@ export async function POST(request: NextRequest) {
             audio: { content: audioBytes },
             config: {
                 encoding,
+                sampleRateHertz: isMp4 ? 44100 : 48000,
                 languageCode: 'en-US',
             },
         });

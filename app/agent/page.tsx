@@ -12,6 +12,7 @@ import { MaskedSvgIcon } from "@/toto-react/components/MaskedSvgIcon";
 import { SuppieAgent } from "@/api/SupermarketAgent";
 import { SupermarketAPI } from "@/api/SupermarketAPI";
 import { GoogleTTSAPI } from "@/toto-react/api/GoogleTTSAPI";
+import { GoogleSTTAPI } from "@/toto-react/api/GoogleSTTAPI";
 
 type PageState =
     | 'idle'
@@ -52,7 +53,9 @@ export default function AgentScreen() {
     const onRecordingComplete = useCallback(async (audioBlob: Blob) => {
         setPageState('transcribing');
         try {
-            const result = await new WhisperAPI().transcribeAudio(audioBlob, 'toto');
+            // const result = await new WhisperAPI().transcribeAudio(audioBlob, 'toto');
+            const result = await new GoogleSTTAPI().transcribeAudio(audioBlob);
+            
             if (!result.text) {
                 setPageState('idle');
                 return;
