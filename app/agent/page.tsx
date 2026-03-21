@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { GenericHomeScreen } from "@/app/components/GenericScreen";
 import { useHeader } from "@/context/HeaderContext";
 import { MediaRecorderEvent, useVoiceRecording } from "@/toto-react/hooks/useVoiceRecording";
@@ -17,14 +17,18 @@ type PageState =
     | 'recordingStarted'
     | 'stoppingRecording'
     | 'transcribing'
-    | 'agentProcessing'
-    | 'done';
+    | 'agentProcessing';
 
 export default function AgentScreen() {
 
     const { setConfig } = useHeader();
     const [pageState, setPageState] = useState<PageState>('idle');
     const [agentMessages, setAgentMessages] = useState<string[]>([]);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [agentMessages, pageState]);
 
     useEffect(() => {
         setConfig({
@@ -43,14 +47,13 @@ export default function AgentScreen() {
             }
 
             setPageState('agentProcessing');
-            setAgentMessages([]);
 
             const { conversationId } = await new SuppieAgent().postMessage(result.text);
             const response = await new SupermarketAPI().streamConversationStatus(conversationId);
             const reader = response.body?.getReader();
 
             if (!reader) {
-                setPageState('done');
+                setPageState('idle');
                 return;
             }
 
@@ -81,7 +84,7 @@ export default function AgentScreen() {
                 }
             }
 
-            setPageState('done');
+            setPageState('idle');
         } catch (err) {
             console.error('Agent interaction error:', err);
             setPageState('idle');
@@ -107,11 +110,6 @@ export default function AgentScreen() {
         }
     };
 
-    const reset = () => {
-        setAgentMessages([]);
-        setPageState('idle');
-    };
-
     const isRecordingActive = pageState === 'recordingStarted';
     const isRecordingLayout = pageState === 'recordingStarted' || pageState === 'stoppingRecording';
 
@@ -128,13 +126,6 @@ export default function AgentScreen() {
                 <div className="flex flex-col flex-1 overflow-y-auto items-center px-4 pt-4">
                     <div className="flex flex-col gap-3 w-full max-w-lg pt-3">
 
-                        {/* Bouncing dots while agent is processing */}
-                        {pageState === 'agentProcessing' && (
-                            <div className="flex justify-center">
-                                <WaitingIndicator />
-                            </div>
-                        )}
-
                         {/* Agent messages accumulated from the SSE stream */}
                         {agentMessages.map((msg, i) => (
                             <div key={i} className="text-lg bg-cyan-400 px-4 py-2 rounded-3xl opacity-90">
@@ -142,22 +133,19 @@ export default function AgentScreen() {
                             </div>
                         ))}
 
+                        {/* Bouncing dots while agent is processing */}
+                        {pageState === 'agentProcessing' && (
+                            <div className="flex justify-center pt-4">
+                                <WaitingIndicator />
+                            </div>
+                        )}
+
+                        <div ref={messagesEndRef} />
+
                     </div>
                 </div>
 
             </div>
-
-            {/* Fixed bottom: Clear button once the stream is complete */}
-            {pageState === 'done' && (
-                <div className="fixed bottom-8 left-1/2 -translate-x-1/2">
-                    <RoundButton
-                        svgIconPath={{ src: "/images/close.svg", alt: "Clear" }}
-                        onClick={reset}
-                        size="m"
-                        type="primary"
-                    />
-                </div>
-            )}
 
             {/* Fixed bottom: mic/stop button + audio visualizer */}
             {(pageState === 'idle' || pageState === 'recordingRequested' || pageState === 'recordingStarted' || pageState === 'stoppingRecording') && (
