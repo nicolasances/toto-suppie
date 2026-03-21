@@ -117,29 +117,34 @@ export default function AgentScreen() {
 
     return (
         <GenericHomeScreen>
-            <div className={`flex flex-col items-center flex-1 ${(pageState === 'agentProcessing' || pageState === 'done') ? 'justify-start pt-8' : 'justify-center'}`}>
+            <div className="flex flex-col flex-1 overflow-hidden pb-28">
 
-                {/* Agent processing / done states */}
-                {(pageState === 'agentProcessing' || pageState === 'done') && (
-                    <div className="flex flex-col items-center gap-4 w-full max-w-lg px-4">
-                        <MaskedSvgIcon src="/images/agent.svg" alt="Agent" size="w-16 h-16" color="bg-cyan-800" />
+                {/* Top: Agent icon */}
+                <div className="flex justify-center pt-8 mb-4 shrink-0">
+                    <MaskedSvgIcon src="/images/agent.svg" alt="Agent" size="w-16 h-16" color="bg-cyan-800" />
+                </div>
+
+                {/* Center: Conversation */}
+                <div className="flex flex-col flex-1 overflow-y-auto items-center px-4 pt-4">
+                    <div className="flex flex-col gap-3 w-full max-w-lg pt-3">
 
                         {/* Bouncing dots while agent is processing */}
-                        {pageState === 'agentProcessing' && <WaitingIndicator />}
-
-                        {/* Agent messages accumulated from the SSE stream */}
-                        {agentMessages.length > 0 && (
-                            <div className="flex flex-col gap-3 w-full">
-                                {agentMessages.map((msg, i) => (
-                                    <div key={i} className="text-lg bg-cyan-400 px-4 py-2 rounded-3xl opacity-90">
-                                        {msg}
-                                    </div>
-                                ))}
+                        {pageState === 'agentProcessing' && (
+                            <div className="flex justify-center">
+                                <WaitingIndicator />
                             </div>
                         )}
 
+                        {/* Agent messages accumulated from the SSE stream */}
+                        {agentMessages.map((msg, i) => (
+                            <div key={i} className="text-lg bg-cyan-400 px-4 py-2 rounded-3xl opacity-90">
+                                {msg}
+                            </div>
+                        ))}
+
                     </div>
-                )}
+                </div>
+
             </div>
 
             {/* Fixed bottom: Clear button once the stream is complete */}
@@ -156,7 +161,7 @@ export default function AgentScreen() {
 
             {/* Fixed bottom: mic/stop button + audio visualizer */}
             {(pageState === 'idle' || pageState === 'recordingRequested' || pageState === 'recordingStarted' || pageState === 'stoppingRecording') && (
-                <div className="fixed bottom-0 left-0 right-0 h-20">
+                <div className="fixed bottom-4 left-0 right-0 h-20">
                     {/* AudioVisualizer: slides in from the left when recording starts */}
                     <div
                         className="absolute inset-y-0 left-0 transition-all duration-500 ease-in-out"
