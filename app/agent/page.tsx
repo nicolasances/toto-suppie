@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GenericHomeScreen } from "@/app/components/GenericScreen";
 import { useHeader } from "@/context/HeaderContext";
+import { useAudio } from "@/context/AudioContext";
 import { MediaRecorderEvent, useVoiceRecording } from "@/toto-react/hooks/useVoiceRecording";
 import { WhisperAPI } from "@/toto-react/api/WhisperAPI";
 import { AudioVisualizer } from "@/toto-react/components/AudioVisualizer";
@@ -23,22 +24,19 @@ type PageState =
 export default function AgentScreen() {
 
     const { setConfig } = useHeader();
+    const { play, stop } = useAudio();
     const [pageState, setPageState] = useState<PageState>('idle');
     const [agentMessages, setAgentMessages] = useState<string[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
 
     const speakMessage = useCallback(async (text: string) => {
         try {
             const url = await new GoogleTTSAPI().synthesizeSpeech(text);
-            if (audioRef.current) audioRef.current.pause();
-            const audio = new Audio(url);
-            audioRef.current = audio;
-            audio.play();
+            await play(url);
         } catch (err) {
             console.error('TTS error:', err);
         }
-    }, []);
+    }, [play]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -118,6 +116,7 @@ export default function AgentScreen() {
 
     const toggleRecording = async () => {
         if (pageState === 'idle') {
+            stop();
             setPageState('recordingRequested');
             await startRecording();
         } else if (pageState === 'recordingStarted') {

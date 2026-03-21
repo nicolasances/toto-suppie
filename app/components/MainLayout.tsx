@@ -9,6 +9,7 @@ import { ChatModeContextProvider, useChatMode } from "@/context/ChatModeContext"
 import { ChatDock } from "@/toto-react/components/ChatDock";
 
 import { HeaderProvider } from "@/context/HeaderContext";
+import { AudioProvider } from "@/context/AudioContext";
 import AppHeader from "./AppHeader";
 import { SuppieAgent } from "@/api/SupermarketAgent";
 import { SupermarketAPI } from "@/api/SupermarketAPI";
@@ -68,6 +69,7 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
       <SideMenu items={menuItems} toggleableItems={toggleableItems} />
       <AuthWrapper>
         <HeaderProvider>
+          <AudioProvider>
           <div className="fixed inset-0 overflow-hidden">
             <div className="absolute left-0 right-0 top-0" style={{ height: `${HEADER_HEIGHT_PX}px` }}>
               <AppHeader />
@@ -82,6 +84,7 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
               {children}
             </div>
           </div>
+          </AudioProvider>
         </HeaderProvider>
         {chatMode && (
           <ChatDock
