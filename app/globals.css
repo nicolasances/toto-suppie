@@ -121,6 +121,7 @@ body {
 @layer base {
   html {
     font-size: 16px;
+    height: 100%;
   }
 
   * {
@@ -130,6 +131,9 @@ body {
 
   body {
     @apply bg-background text-foreground;
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
   }
 
   input,

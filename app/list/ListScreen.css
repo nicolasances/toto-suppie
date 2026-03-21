@@ -1,21 +1,30 @@
+.list-screen {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    position: relative;
+}
+
 .slist {
     display: flex;
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     scroll-behavior: smooth;
     position: relative;
 }
 
-.slist::after {
-    content: '';
-    position: fixed;
-    bottom: 76px;
+.list-gradient {
+    position: absolute;
+    bottom: 76px; /* height of .bottombar */
     left: 0;
     right: 0;
     height: 100px;
-    background: linear-gradient(to top, var(--color-background) 0%, transparent 50%);
+    background: linear-gradient(to top, var(--color-background) 0%, transparent 100%);
     pointer-events: none;
     z-index: 5;
+    transition: opacity 0.2s ease;
 }
 
 
@@ -29,6 +38,9 @@
     box-sizing: border-box;
     min-height: 76px;
     flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
 }
 
 .bottombar .bar {

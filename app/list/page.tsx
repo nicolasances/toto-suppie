@@ -10,6 +10,7 @@ import { SupermarketAPI } from '@/api/SupermarketAPI';
 import { ListItemWidget } from '@/app/components/list/ListItemWidget';
 import RoundButton from '../components/buttons/RoundButton';
 import { MaskedSvgIcon } from '../components/MaskedSvgIcon';
+import { useHeader } from '@/context/HeaderContext';
 
 export default function ListScreen() {
 
@@ -18,9 +19,19 @@ export default function ListScreen() {
     const [addMode, setAddMode] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [editedItem, setEditedItem] = useState<SupermarketListItem | null>(null);
+    const [showGradient, setShowGradient] = useState(true);
+    const { setConfig } = useHeader();
 
     const newItemRef = useRef<HTMLInputElement>(null);
     const listContainerRef = useRef<HTMLDivElement>(null);
+
+    const updateGradient = () => {
+        const el = listContainerRef.current;
+        if (!el) return;
+        const overflows = el.scrollHeight > el.clientHeight + 4;
+        const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 4;
+        setShowGradient(overflows && !atBottom);
+    };
 
     /**
      * Load the most commons names, to support autocomplete
@@ -113,29 +124,39 @@ export default function ListScreen() {
 
     useEffect(() => { loadSupermarketList(); }, []);
     useEffect(() => { loadNames(); }, []);
+    useEffect(() => { updateGradient(); }, [supermarketList]);
     useEffect(() => { if (newItemRef.current) newItemRef.current.focus(); }, [addMode, editMode]);
+    useEffect(() => {
+        setConfig({
+            title: 'List',
+            backButton: { enabled: !addMode && !editMode },
+        });
+    }, [addMode, editMode, setConfig]);
 
     return (
-        <GenericHomeScreen title="List" back={!addMode && !editMode}>
-            <div className="slist" ref={listContainerRef}>
-                {!addMode && !editMode &&
-                    <SupermarketList
-                        items={supermarketList}
-                        onItemClick={onItemClick}
-                        tickable={false}
-                    />
-                }
-                {addMode && <NewItem inputRef={newItemRef} onSave={onSaveNewItem} onCancel={() => { setAddMode(false); }} names={names} />}
-                {editMode && <NewItem item={editedItem} inputRef={newItemRef} onSave={onUpdateItem} onCancel={onItemDelete} names={names} />}
-            </div>
-
-            {!addMode && !editMode && <BottomBar onPress={onNewItem} />}
-
-            {editMode &&
-                <div className="flex justify-center pb-8">
-                    <RoundButton svgIconPath={{ src: "images/left-arrow.svg", alt: "Back" }} onClick={() => { setEditMode(false) }} />
+        <GenericHomeScreen>
+            <div className="list-screen">
+                <div className="slist" ref={listContainerRef} onScroll={updateGradient}>
+                    {!addMode && !editMode &&
+                        <SupermarketList
+                            items={supermarketList}
+                            onItemClick={onItemClick}
+                            tickable={false}
+                        />
+                    }
+                    {addMode && <NewItem inputRef={newItemRef} onSave={onSaveNewItem} onCancel={() => { setAddMode(false); }} names={names} />}
+                    {editMode && <NewItem item={editedItem} inputRef={newItemRef} onSave={onUpdateItem} onCancel={onItemDelete} names={names} />}
                 </div>
-            }
+
+                {!addMode && !editMode && showGradient && <div className="list-gradient" />}
+                {!addMode && !editMode && <BottomBar onPress={onNewItem} />}
+
+                {editMode &&
+                    <div className="flex justify-center pb-8">
+                        <RoundButton svgIconPath={{ src: "images/left-arrow.svg", alt: "Back" }} onClick={() => { setEditMode(false) }} />
+                    </div>
+                }
+            </div>
 
         </GenericHomeScreen>
     );
