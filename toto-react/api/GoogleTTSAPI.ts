@@ -3,7 +3,7 @@ export class GoogleTTSAPI {
 
     async synthesizeSpeech(text: string, languageCode: string = 'en-US', voiceName: string = 'en-US-Neural2-I'): Promise<string> {
         
-        const backendUrl = '/backend/tts/synthesize';
+        const backendUrl = '/api/tts/synthesize';
 
         const response = await fetch(backendUrl, {
             method: 'POST',

@@ -10,6 +10,7 @@ import RoundButton from "@/toto-react/components/buttons/RoundButton";
 import { MaskedSvgIcon } from "@/toto-react/components/MaskedSvgIcon";
 import { SuppieAgent } from "@/api/SupermarketAgent";
 import { SupermarketAPI } from "@/api/SupermarketAPI";
+import { GoogleTTSAPI } from "@/toto-react/api/GoogleTTSAPI";
 
 type PageState =
     | 'idle'
@@ -25,6 +26,19 @@ export default function AgentScreen() {
     const [pageState, setPageState] = useState<PageState>('idle');
     const [agentMessages, setAgentMessages] = useState<string[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    const speakMessage = useCallback(async (text: string) => {
+        try {
+            const url = await new GoogleTTSAPI().synthesizeSpeech(text);
+            if (audioRef.current) audioRef.current.pause();
+            const audio = new Audio(url);
+            audioRef.current = audio;
+            audio.play();
+        } catch (err) {
+            console.error('TTS error:', err);
+        }
+    }, []);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -78,6 +92,7 @@ export default function AgentScreen() {
                             const data = JSON.parse(line.slice(5).trim());
                             if (data.message) {
                                 setAgentMessages(prev => [...prev, data.message as string]);
+                                speakMessage(data.message as string);
                             }
                         } catch (e) { console.error('Failed to parse SSE data:', e); }
                         currentEvent = 'message';
@@ -90,7 +105,7 @@ export default function AgentScreen() {
             console.error('Agent interaction error:', err);
             setPageState('idle');
         }
-    }, []);
+    }, [speakMessage]);
 
     const onRecordingEvent = useCallback((event: MediaRecorderEvent) => {
         if (event === 'recordingStarted') setPageState('recordingStarted');
