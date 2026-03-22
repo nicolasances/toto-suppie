@@ -25,7 +25,7 @@ type PageState =
 export default function AgentScreen() {
 
     const { setConfig } = useHeader();
-    const { play, stop } = useAudio();
+    const { play, stop, unlock } = useAudio();
     const [pageState, setPageState] = useState<PageState>('idle');
     const [agentMessages, setAgentMessages] = useState<string[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -119,6 +119,9 @@ export default function AgentScreen() {
 
     const toggleRecording = async () => {
         if (pageState === 'idle') {
+            // Unlock the Audio element inside the user gesture so Safari allows
+            // async playback later when the agent response arrives.
+            unlock();
             stop();
             setPageState('recordingRequested');
             await startRecording();
