@@ -5,7 +5,7 @@ import { GenericHomeScreen } from "@/app/components/GenericScreen";
 import { useHeader } from "@/context/HeaderContext";
 import { useAudio } from "@/context/AudioContext";
 import { MediaRecorderEvent, useVoiceRecording } from "@/toto-react/hooks/useVoiceRecording";
-import { WhisperAPI } from "@/toto-react/api/WhisperAPI";
+// import { WhisperAPI } from "@/toto-react/api/WhisperAPI";
 import { AudioVisualizer } from "@/toto-react/components/AudioVisualizer";
 import RoundButton from "@/toto-react/components/buttons/RoundButton";
 import { MaskedSvgIcon } from "@/toto-react/components/MaskedSvgIcon";
@@ -141,8 +141,8 @@ export default function AgentScreen() {
                 </div>
 
                 {/* Center: Conversation */}
-                <div className="flex flex-col flex-1 overflow-y-auto items-center px-4 pt-4">
-                    <div className="flex flex-col gap-3 w-full max-w-lg pt-3">
+                <div className="flex flex-col flex-1 overflow-y-auto items-center px-4">
+                    <div className="flex flex-col gap-3 w-full max-w-lg">
 
                         {/* Agent messages accumulated from the SSE stream */}
                         {agentMessages.map((msg, i) => (
