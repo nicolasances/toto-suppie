@@ -16,6 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta httpEquiv="Cache-Control" content="no-store, must-revalidate" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
         <script src="https://accounts.google.com/gsi/client" async></script>
       </head>
       <body>
