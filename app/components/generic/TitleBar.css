@@ -24,3 +24,19 @@
     width: 24px;
     height: 24px;
 }
+
+/* When a rightButton is present, wrap it together with a spacer that reserves
+   room for the SideMenu fixed button (right-4, ~40px wide) so they don't overlap. */
+.title-bar .right-area {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.title-bar .menu-spacer {
+    /* The SideMenu button is fixed at right-4 (16px) and is ~40px wide,
+       so its left edge sits ~56px from the viewport's right edge.
+       The title-bar has padding-right: 12px, so we need a 44px spacer
+       to push the rightButton content clear of the SideMenu button. */
+    width: 44px;
+}

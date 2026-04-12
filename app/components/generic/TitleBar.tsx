@@ -39,10 +39,17 @@ export function TitleBar(props: TitleBarProps) {
     else if (props.leftButton) leftButton = props.leftButton
 
     // Right button
-    let rightButton = (
-        <div className="button-container flex">
-            {props.rightButton}
+    // When a rightButton is provided, wrap it with a menu-spacer so it sits to the
+    // left of the SideMenu's fixed button (positioned at right-4 in the viewport).
+    let rightButton = props.rightButton ? (
+        <div className="right-area">
+            <div className="button-container flex">
+                {props.rightButton}
+            </div>
+            <div className="menu-spacer" />
         </div>
+    ) : (
+        <div className="button-container" />
     )
 
     return (
