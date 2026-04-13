@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { GenericHomeScreen } from './components/GenericScreen';
-import Lottie from 'lottie-react';
 import Image from 'next/image';
 import './HomeScreen.css';
 import { TouchableOpacity } from './components/util/TouchableOpacity';
@@ -26,38 +25,27 @@ const COLORS = [
 
 export default function Home() {
     const [mainListItems, setMainListItems] = useState<SupermarketListItem[] | null>(null);
-    const [loadingMainList, setLoadingMainList] = useState(false);
-    const [animData, setAnimData] = useState<any>(null);
     const [showHints, setShowHints] = useState(true);
     const router = useRouter();
     const { setConfig } = useHeader();
 
     /**
-     * Loads the main supermarket list
+     * Loads the main supermarket list in the background.
+     * The home UI is already visible before this completes.
      */
     const loadMainSupermarketList = async () => {
-        // Start the loading if the APIs are slow
-        const loadingTimer = setTimeout(() => { setLoadingMainList(true) }, 400);
-
-        // Load the data
-        const { items } = await new SupermarketAPI().getItems();
-
-        // Stop the timer
-        clearTimeout(loadingTimer);
-
-        // Update the state
-        setMainListItems(items);
-
-        setLoadingMainList(false);
+        try {
+            const { items } = await new SupermarketAPI().getItems();
+            setMainListItems(items);
+        } catch (error) {
+            console.log("Failed to load supermarket list", error);
+            // Leave mainListItems as null to distinguish a load failure from an empty list
+        }
     };
 
 
     useEffect(() => {
         loadMainSupermarketList();
-        // Load lottie animation
-        fetch('/lottie/anim-loading.json')
-            .then(res => res.json())
-            .then(setAnimData);
     }, []);
 
     useEffect(() => {
@@ -71,42 +59,38 @@ export default function Home() {
 
     return (
         <GenericHomeScreen>
-            {loadingMainList && animData && <Lottie animationData={animData} loop={true} />}
-
-            {!loadingMainList && mainListItems &&
-                <div className="flex flex-col flex-1 items-center justify-center gap-6" style={{marginTop: -64}}>
+            <div className="flex flex-col flex-1 items-center justify-center gap-6" style={{marginTop: -64}}>
+                <div className="relative">
+                    <RoundButton 
+                        svgIconPath={{ src: "/images/edit.svg", alt: "Edit List" }}
+                        onClick={() => { router.push('/list') }} 
+                        size="car"
+                        type="primary"
+                    />
+                    <HintBubble show={showHints} text="Edit your list" />
+                </div>
+                {mainListItems && mainListItems.length > 0 && 
                     <div className="relative">
                         <RoundButton 
-                            svgIconPath={{ src: "/images/edit.svg", alt: "Edit List" }}
-                            onClick={() => { router.push('/list') }} 
+                            svgIconPath={{ src: "/images/cart.svg", alt: "Start Shopping" }}
+                            onClick={() => { router.push('/shop') }} 
                             size="car"
-                            type="primary"
+                            type="filled"
                         />
-                        <HintBubble show={showHints} text="Edit your list" />
+                        <HintBubble show={showHints} text="Start shopping" position="right" />
                     </div>
-                    {mainListItems && mainListItems?.length > 0 && 
-                        <div className="relative">
-                            <RoundButton 
-                                svgIconPath={{ src: "/images/cart.svg", alt: "Start Shopping" }}
-                                onClick={() => { router.push('/shop') }} 
-                                size="car"
-                                type="filled"
-                            />
-                            <HintBubble show={showHints} text="Start shopping" position="right" />
-                        </div>
-                    }
-                    <div className="relative">
-                        <RoundButton
-                            svgIconPath={{ src: "/images/agent.svg", alt: "Agent Mode" }}
-                            onClick={() => { router.push('/agent') }}
-                            size="car"
-                            type="filledSecondary"
-                        />
-                        <HintBubble show={showHints} text="Talk to Toto!" />
-                    </div>
-                    {/* <SectionButton label="Teach me!" imageSrc="/images/monkey-body.svg" onPress={() => { router.push('/teach') }} /> */}
+                }
+                <div className="relative">
+                    <RoundButton
+                        svgIconPath={{ src: "/images/agent.svg", alt: "Agent Mode" }}
+                        onClick={() => { router.push('/agent') }}
+                        size="car"
+                        type="filledSecondary"
+                    />
+                    <HintBubble show={showHints} text="Talk to Toto!" />
                 </div>
-            }
+                {/* <SectionButton label="Teach me!" imageSrc="/images/monkey-body.svg" onPress={() => { router.push('/teach') }} /> */}
+            </div>
         </GenericHomeScreen>
     );
 }

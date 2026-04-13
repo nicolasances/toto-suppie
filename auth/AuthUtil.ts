@@ -90,6 +90,18 @@ export function storeUser(user: AuthenticatedUser) {
 }
 
 /**
+ * Clears the stored user from cookies and local storage.
+ * Used when a backend request indicates the token is invalid or expired.
+ */
+export function clearStoredUser() {
+
+    cookies.remove('user', { path: '/' });
+
+    window.localStorage.removeItem("user");
+
+}
+
+/**
  * Sign-in using Google
  */
 export function googleSignIn() {
