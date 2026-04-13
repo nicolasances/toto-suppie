@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { getStoredUserToken, googleSignIn } from '@/auth/AuthUtil';
-import { AuthAPI } from '@/api/AuthAPI';
 
 interface AuthWrapperProps {
     children: React.ReactNode;
@@ -11,43 +9,23 @@ interface AuthWrapperProps {
 
 export function AuthWrapper({ children }: AuthWrapperProps) {
     const [loginNeeded, setLoginNeeded] = useState<boolean | null>(null);
-    const router = useRouter();
 
     /**
-     * Verifies if the user is authenticated
+     * Checks if the user is authenticated based on local storage.
+     * Token presence is sufficient to consider the user logged in.
+     * Backend microservices are responsible for validating the token.
      */
-    const verifyAuthentication = async () => {
-        // Get the user from local storage
+    const checkAuthentication = () => {
         const user = getStoredUserToken();
 
-        // Login is needed if the user is not in local storage
         if (!user) {
             console.log("No user or Id Token found. Login needed.");
             setLoginNeeded(true);
             return;
         }
 
-        // The user is stored in local storage
-        // Verify its token
-        console.log("Verifying Id Token");
-        
-        try {
-            const verificationResult = await new AuthAPI().verifyToken(user.idToken);
-
-            // Check that the token hasn't expired
-            if (verificationResult.name == "TokenExpiredError") {
-                console.log("JWT Token Expired");
-                // If the token has expired, you need to login
-                setLoginNeeded(true);
-                return;
-            }
-
-            setLoginNeeded(false);
-            console.log("Token successfully verified.");
-        } catch (error) {
-            console.log("Token verification failed, assuming authenticated for demo");
-            setLoginNeeded(false);
-        }
+        console.log("User token found in local storage. Proceeding.");
+        setLoginNeeded(false);
     };
 
     /**
@@ -58,14 +36,14 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
     };
 
     useEffect(() => {
-        verifyAuthentication();
+        checkAuthentication();
     }, []);
 
     useEffect(() => {
         triggerSignIn();
     }, [loginNeeded]);
 
-    // Empty screen while Google SignIn is loading
+    // Empty screen while checking local storage (synchronous, near-instant)
     if (loginNeeded == null) return <div></div>;
 
     if (loginNeeded === true) return <div></div>;
