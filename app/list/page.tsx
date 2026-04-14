@@ -142,7 +142,7 @@ export default function ListScreen() {
                     {!addMode && !editMode &&
                         <SupermarketList
                             items={supermarketList}
-                            onItemClick={onItemClick}-
+                            onItemClick={onItemClick}
                             tickable={false}
                             loading={loading}
                         />
