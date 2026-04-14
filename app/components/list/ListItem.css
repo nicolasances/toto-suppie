@@ -60,7 +60,7 @@
 }
 
 .list-item.skeleton {
-    background-color: #3a5060;
+    background-color: #1c3445;
     pointer-events: none;
     overflow: hidden;
     position: relative;
