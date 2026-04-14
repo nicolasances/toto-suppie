@@ -16,6 +16,7 @@ export default function ListScreen() {
 
     const [supermarketList, setSupermarketList] = useState<SupermarketListItem[]>([]);
     const [names, setNames] = useState<string[]>([]);
+    const [loading, setLoading] = useState(true);
     const [addMode, setAddMode] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [editedItem, setEditedItem] = useState<SupermarketListItem | null>(null);
@@ -47,6 +48,7 @@ export default function ListScreen() {
     const loadSupermarketList = async () => {
         const { items } = await new SupermarketAPI().getItems();
         setSupermarketList(items);
+        setLoading(false);
     };
 
     /**
@@ -142,6 +144,7 @@ export default function ListScreen() {
                             items={supermarketList}
                             onItemClick={onItemClick}
                             tickable={false}
+                            loading={loading}
                         />
                     }
                     {addMode && <NewItem inputRef={newItemRef} onSave={onSaveNewItem} onCancel={() => { setAddMode(false); }} names={names} />}
