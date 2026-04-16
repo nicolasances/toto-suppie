@@ -12,7 +12,7 @@ import { ListItemWidget } from "@/app/components/list/ListItemWidget";
 import Image from 'next/image';
 import { SuccessBox } from "@/app/components/generic/SuccessBox";
 import { TotoButton } from "@/app/components/generic/TotoButton";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { TotoIconButton } from "@/app/components/generic/TotoIconButton";
 import TotoPopup from "@/app/components/generic/TotoPopup";
 import RoundButton from "../components/buttons/RoundButton";
@@ -28,6 +28,7 @@ export default function ShopScreen() {
     const [closeListPopupOpen, setCloseListPopupOpen] = useState<boolean>(false);
 
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { setConfig } = useHeader();
 
     /**
@@ -78,6 +79,13 @@ export default function ShopScreen() {
     const loadSupermarkets = async () => {
         const { supermarkets } = await new SupermarketAPI().getSupermarkets();
         setSupermarkets(supermarkets);
+
+        // If a supermarketId was passed via URL, auto-select that supermarket
+        const supermarketId = searchParams.get('supermarketId');
+        if (supermarketId) {
+            const match = supermarkets.find((s) => s.id === supermarketId);
+            if (match) setChosenSupermarket(match);
+        }
     };
 
     /**

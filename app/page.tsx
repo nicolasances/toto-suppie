@@ -8,6 +8,7 @@ import { TouchableOpacity } from './components/util/TouchableOpacity';
 import { useRouter } from 'next/navigation';
 import { SupermarketAPI } from '@/api/SupermarketAPI';
 import { SupermarketListItem } from '@/model/SupermarketListItem';
+import { Supermarket } from '@/model/Supermarket';
 import { useHeader } from '@/context/HeaderContext';
 import RoundButton from './components/buttons/RoundButton';
 
@@ -26,6 +27,7 @@ const COLORS = [
 export default function Home() {
     const [mainListItems, setMainListItems] = useState<SupermarketListItem[] | null>(null);
     const [showHints, setShowHints] = useState(true);
+    const [activeSessionSupermarket, setActiveSessionSupermarket] = useState<Supermarket | null>(null);
     const router = useRouter();
     const { setConfig } = useHeader();
 
@@ -43,9 +45,22 @@ export default function Home() {
         }
     };
 
+    /**
+     * Checks whether a shopping session is already ongoing.
+     * Runs in parallel with loadMainSupermarketList.
+     */
+    const checkActiveSession = async () => {
+        try {
+            const supermarket = await new SupermarketAPI().getActiveSupermarket();
+            setActiveSessionSupermarket(supermarket);
+        } catch (error) {
+            console.log("Failed to check active session", error);
+        }
+    };
 
     useEffect(() => {
         loadMainSupermarketList();
+        checkActiveSession();
     }, []);
 
     useEffect(() => {
@@ -73,11 +88,19 @@ export default function Home() {
                     <div className="relative">
                         <RoundButton 
                             svgIconPath={{ src: "/images/cart.svg", alt: "Start Shopping" }}
-                            onClick={() => { router.push('/shop') }} 
+                            onClick={() => {
+                                if (activeSessionSupermarket) {
+                                    router.push(`/shop?supermarketId=${activeSessionSupermarket.id}`);
+                                } else {
+                                    router.push('/shop');
+                                }
+                            }} 
                             size="car"
                             type="filled"
+                            loading={activeSessionSupermarket != null}
                         />
-                        <HintBubble show={showHints} text="Start shopping" position="right" />
+                        <HintBubble show={showHints && !activeSessionSupermarket} text="Start shopping" position="right" />
+                        {activeSessionSupermarket && <ActiveSessionLabel />}
                     </div>
                 }
                 <div className="relative">
@@ -92,6 +115,21 @@ export default function Home() {
                 {/* <SectionButton label="Teach me!" imageSrc="/images/monkey-body.svg" onPress={() => { router.push('/teach') }} /> */}
             </div>
         </GenericHomeScreen>
+    );
+}
+
+function ActiveSessionLabel() {
+    return (
+        <div
+            className="absolute top-1/2 left-full -translate-y-1/2 ml-3 pointer-events-none"
+            role="status"
+            aria-live="polite"
+            aria-label="Shopping ongoing!"
+        >
+            <div className="rounded-full px-4 py-2 text-base text-gray-800 whitespace-nowrap">
+                Shopping ongoing!
+            </div>
+        </div>
     );
 }
 

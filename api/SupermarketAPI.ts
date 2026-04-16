@@ -116,6 +116,27 @@ export class SupermarketAPI {
     }
 
     /**
+     * Checks all registered supermarkets and returns the first one whose
+     * location list is non-empty (i.e. an active shopping session), or null
+     * if no active session exists.
+     */
+    async getActiveSupermarket(): Promise<Supermarket | null> {
+        const { supermarkets } = await this.getSupermarkets();
+
+        const results = await Promise.allSettled(
+            supermarkets.map((s) => this.getLocationList(s).then((r) => ({ supermarket: s, items: r.items })))
+        );
+
+        for (const result of results) {
+            if (result.status === 'fulfilled' && result.value.items && result.value.items.length > 0) {
+                return result.value.supermarket;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Opens an SSE connection to the conversation status stream.
      * Returns the raw fetch Response so the caller can read the streamed body.
      */
