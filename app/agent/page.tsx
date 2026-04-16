@@ -209,7 +209,7 @@ export default function AgentScreen() {
 
             {/* Fixed bottom: Transcribing indicator */}
             {pageState === 'transcribing' && (
-                <div className="fixed bottom-0 left-0 right-0 flex justify-center pb-8">
+                <div className="fixed bottom-0 left-0 right-0 flex justify-start pb-8">
                     <TranscribingIndicator />
                 </div>
             )}
@@ -251,7 +251,7 @@ function TranscribingIndicator() {
     }, []);
 
     return (
-        <div className="text-cyan-700 italic text-lg">
+        <div className="text-cyan-700 text-lg px-4">
             Transcribing{'.'.repeat(dotCount)}
         </div>
     );
