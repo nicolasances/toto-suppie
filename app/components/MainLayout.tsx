@@ -9,7 +9,7 @@ import { ChatModeContextProvider, useChatMode } from "@/context/ChatModeContext"
 import { ChatDock } from "@/toto-react/components/ChatDock";
 
 import { HeaderProvider } from "@/context/HeaderContext";
-import { AudioProvider } from "@/context/AudioContext";
+import { AudioProvider } from "@/toto-react/context/AudioContext";
 import AppHeader from "./AppHeader";
 import { SuppieAgent } from "@/api/SupermarketAgent";
 import { SupermarketAPI } from "@/api/SupermarketAPI";
