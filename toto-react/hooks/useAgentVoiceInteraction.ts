@@ -91,7 +91,7 @@ export function useAgentVoiceInteraction({
                                 setMessages(prev => [...prev, data.message as string]);
                                 speakMessage(data.message as string);
                             }
-                        } catch (e) { console.error('Failed to parse SSE data:', e); }
+                        } catch (e) { console.error('Failed to parse SSE data line:', line, e); }
                         currentEvent = 'message';
                     }
                 }
