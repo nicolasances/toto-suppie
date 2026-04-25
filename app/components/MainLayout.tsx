@@ -12,7 +12,7 @@ import { HeaderProvider } from "@/context/HeaderContext";
 import { AudioProvider } from "@/toto-react/context/AudioContext";
 import AppHeader from "./AppHeader";
 import { SuppieAgent } from "@/api/SupermarketAgent";
-import { SupermarketAPI } from "@/api/SupermarketAPI";
+import { GaleBrokerAPI } from "@/toto-react/api/GaleBrokerAPI";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -89,7 +89,7 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
         {chatMode && (
           <ChatDock
             sendMessage={sendMessage}
-            streamConversationStatus={async (chatConversationId: string) => { return await new SupermarketAPI().streamConversationStatus(chatConversationId); }}
+            streamConversationStatus={async (chatConversationId: string) => { return await new GaleBrokerAPI().streamConversationStatus(chatConversationId); }}
             onHeightChange={setChatDockHeightPx}
           />
         )}

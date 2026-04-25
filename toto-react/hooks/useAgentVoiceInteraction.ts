@@ -3,6 +3,7 @@ import { MediaRecorderEvent, useVoiceRecording } from '@/toto-react/hooks/useVoi
 import { useAudio } from '@/toto-react/context/AudioContext';
 import { GoogleSTTAPI } from '@/toto-react/api/GoogleSTTAPI';
 import { GoogleTTSAPI } from '@/toto-react/api/GoogleTTSAPI';
+import { GaleBrokerAPI } from '@/toto-react/api/GaleBrokerAPI';
 
 export type AgentVoiceState =
     | 'idle'
@@ -14,7 +15,6 @@ export type AgentVoiceState =
 
 export interface UseAgentVoiceInteractionOptions {
     sendMessage: (text: string) => Promise<string>;
-    streamConversationStatus?: (id: string) => Promise<Response>;
 }
 
 export interface UseAgentVoiceInteractionResult {
@@ -26,7 +26,6 @@ export interface UseAgentVoiceInteractionResult {
 
 export function useAgentVoiceInteraction({
     sendMessage,
-    streamConversationStatus,
 }: UseAgentVoiceInteractionOptions): UseAgentVoiceInteractionResult {
 
     const { play, stop, unlock } = useAudio();
@@ -55,13 +54,7 @@ export function useAgentVoiceInteraction({
             setState('agentProcessing');
 
             const conversationId = await sendMessage(result.text);
-
-            if (!streamConversationStatus) {
-                setState('idle');
-                return;
-            }
-
-            const response = await streamConversationStatus(conversationId);
+            const response = await new GaleBrokerAPI().streamConversationStatus(conversationId);
             const reader = response.body?.getReader();
 
             if (!reader) {
@@ -102,7 +95,7 @@ export function useAgentVoiceInteraction({
             console.error('Agent interaction error:', err);
             setState('idle');
         }
-    }, [sendMessage, streamConversationStatus, speakMessage]);
+    }, [sendMessage, speakMessage]);
 
     const onRecordingEvent = useCallback((event: MediaRecorderEvent) => {
         if (event === 'recordingStarted') setState('recordingStarted');
@@ -129,3 +122,4 @@ export function useAgentVoiceInteraction({
 
     return { state, messages, toggleRecording, stream };
 }
+

@@ -5,7 +5,6 @@ import { GenericHomeScreen } from "@/app/components/GenericScreen";
 import { useHeader } from "@/context/HeaderContext";
 import { MaskedSvgIcon } from "@/toto-react/components/MaskedSvgIcon";
 import { SuppieAgent } from "@/api/SupermarketAgent";
-import { SupermarketAPI } from "@/api/SupermarketAPI";
 import { useAgentVoiceInteraction } from "@/toto-react/hooks/useAgentVoiceInteraction";
 import { AgentConversationView } from "@/toto-react/components/AgentConversationView";
 import { VoiceAgentDock } from "@/toto-react/components/VoiceAgentDock";
@@ -26,14 +25,7 @@ export default function AgentScreen() {
         return conversationId;
     };
 
-    const streamConversationStatus = async (id: string): Promise<Response> => {
-        return await new SupermarketAPI().streamConversationStatus(id);
-    };
-
-    const { state, messages, toggleRecording, stream } = useAgentVoiceInteraction({
-        sendMessage,
-        streamConversationStatus,
-    });
+    const { state, messages, toggleRecording, stream } = useAgentVoiceInteraction({ sendMessage });
 
     return (
         <GenericHomeScreen>
