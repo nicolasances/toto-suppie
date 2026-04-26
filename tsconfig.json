@@ -25,7 +25,8 @@
     "paths": {
       "@/*": [
         "./*"
-      ]
+      ],
+      "toto-react": ["../toto-react/src/index.ts"]
     }
   },
   "include": [
