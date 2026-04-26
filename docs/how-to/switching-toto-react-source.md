@@ -140,19 +140,29 @@ Restore the versioned dependency and revert scripts:
 
 ### 2. Update `next.config.ts`
 
-Remove the `turbopack: {}` block and the entire `webpack` callback:
+Remove `transpilePackages`, the `turbopack: {}` block, and the entire `webpack` callback.
+The npm package ships pre-compiled `dist/` files so transpilation is not needed:
 
 ```ts
 const nextConfig: NextConfig = {
-  transpilePackages: ['toto-react'],
-  // ... rest of config (no turbopack or webpack blocks)
+  // no transpilePackages, no turbopack, no webpack
+  // ... rest of config (headers etc.)
 };
 ```
 
 ### 3. Update `tailwind.config.ts`
 
-Remove the `../toto-react/src/**` content path (the installed package lives under
-`node_modules/` and its source is not needed for Tailwind scanning).
+Replace the `../toto-react/src/**` path with the npm package's compiled output so Tailwind
+can still find toto-react class names:
+
+```ts
+content: [
+  // ... existing paths
+  "./node_modules/toto-react/dist/**/*.{js,mjs}",
+],
+```
+
+So you will go from `"../toto-react/src/**/*.{js,ts,jsx,tsx}"` to `"./node_modules/toto-react/dist/**/*.{js,mjs}"`.
 
 ### 4. Update `tsconfig.json`
 
@@ -164,10 +174,23 @@ Remove the `toto-react` entry from `paths`:
 }
 ```
 
-### 5. Install
+### 5. Force-reinstall the npm package
+
+After `npm install` in local mode, `node_modules/toto-react` is a symlink. When switching
+back to npm mode, npm will **not** replace this symlink automatically — it sees the version
+already matches. You must delete it first:
 
 ```sh
-npm install      # installs the published package from the registry
+rm -rf node_modules/toto-react
+npm install
+```
+
+### 6. Clear the Next.js cache and run
+
+Turbopack caches module-alias maps inside `.next/`. Always delete it when switching modes:
+
+```sh
+rm -rf .next
 npm run dev      # next dev --turbopack
 ```
 
@@ -180,8 +203,10 @@ npm run dev      # next dev --turbopack
 | `package.json` dependency | `"toto-react": "^0.1.0"` | `"toto-react": "file:../toto-react"` |
 | `dev` script | `next dev --turbopack` | `next dev --webpack` |
 | `build` script | `next build` | `next build --webpack` |
+| `next.config.ts` transpilePackages | not needed | `transpilePackages: ['toto-react']` |
 | `next.config.ts` webpack alias | not needed | `toto-react$` → `../toto-react/src/index.ts` |
 | `next.config.ts` turbopack block | not needed | `turbopack: {}` |
-| `tailwind.config.ts` content | no toto-react path | `../toto-react/src/**` |
+| `tailwind.config.ts` content | `node_modules/toto-react/dist/**/*.{js,mjs}` | `../toto-react/src/**` |
 | `tsconfig.json` paths | no toto-react entry | `"toto-react": ["../toto-react/src/index.ts"]` |
 | toto-react node_modules symlinks | not needed | `next`, `react`, `react-dom`, `@types/react`, `@types/react-dom` |
+| Before switching | `rm -rf node_modules/toto-react && rm -rf .next` | (symlink is created by npm) |
