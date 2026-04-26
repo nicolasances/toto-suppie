@@ -1,4 +1,4 @@
 "use client";
 
-export { default } from "@/toto-react/components/SideMenu";
-export type { SideMenuItem, SideMenuToggleableItem } from "@/toto-react/components/SideMenu";
+export { SideMenu as default } from "toto-react";
+export type { SideMenuItem, SideMenuToggleableItem } from "toto-react";

@@ -1,1 +1,1 @@
-export { POST } from '@/toto-react/backend/stt/route';
+export { POST } from 'toto-react/server/stt';

@@ -1,1 +1,1 @@
-export { MaskedSvgIcon } from "@/toto-react/components/MaskedSvgIcon";
+export { MaskedSvgIcon } from "toto-react";

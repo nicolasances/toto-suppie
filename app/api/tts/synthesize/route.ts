@@ -1,1 +1,1 @@
-export { POST } from '@/toto-react/backend/tts/synthesize/route';
+export { POST } from 'toto-react/server/tts/synthesize';
