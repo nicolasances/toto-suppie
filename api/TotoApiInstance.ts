@@ -1,4 +1,4 @@
 import { TotoAPI } from 'toto-react';
-import { endpoint } from '@/Config';
+import { ApiName, endpoint } from '@/Config';
 
-export const totoAPI = new TotoAPI((api) => endpoint(api as any) ?? '');
+export const totoAPI = new TotoAPI((api) => endpoint(api as ApiName) ?? '');
