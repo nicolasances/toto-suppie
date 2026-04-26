@@ -4,15 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthWrapper } from "./AuthWrapper";
 import SideMenu, { SideMenuItem, SideMenuToggleableItem } from "@/app/ui/SideMenu";
-import { CarModeContextProvider, useCarMode } from "@/toto-react/context/CarModeContext";
+import { CarModeContextProvider, useCarMode, ChatDock, AudioProvider, GaleBrokerAPI } from "toto-react";
 import { ChatModeContextProvider, useChatMode } from "@/context/ChatModeContext";
-import { ChatDock } from "@/toto-react/components/ChatDock";
-
 import { HeaderProvider } from "@/context/HeaderContext";
-import { AudioProvider } from "@/toto-react/context/AudioContext";
 import AppHeader from "./AppHeader";
 import { SuppieAgent } from "@/api/SupermarketAgent";
-import { GaleBrokerAPI } from "@/toto-react/api/GaleBrokerAPI";
+import { totoAPI } from "@/api/TotoApiInstance";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -89,7 +86,7 @@ function MainLayoutContent({ children }: MainLayoutContentProps) {
         {chatMode && (
           <ChatDock
             sendMessage={sendMessage}
-            streamConversationStatus={async (chatConversationId: string) => { return await new GaleBrokerAPI().streamConversationStatus(chatConversationId); }}
+            streamConversationStatus={async (chatConversationId: string) => { return await new GaleBrokerAPI(totoAPI).streamConversationStatus(chatConversationId); }}
             onHeightChange={setChatDockHeightPx}
           />
         )}

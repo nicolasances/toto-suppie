@@ -1,4 +1,4 @@
-import { TotoAPI } from "./TotoAPI";
+import { totoAPI } from "./TotoApiInstance";
 
 /**
  * This class is a proxy for the SuppieAgent in Supermarket API
@@ -12,7 +12,7 @@ export class SuppieAgent {
             "message": userMessage
         }
 
-        return (await new TotoAPI().fetch('galeBroker', `/messages`, {
+        return (await totoAPI.fetch('galeBroker', `/messages`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
