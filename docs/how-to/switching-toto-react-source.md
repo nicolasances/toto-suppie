@@ -64,8 +64,8 @@ The `toto-react$` alias uses an exact match (`$`) so that sub-path imports like
 
 ### 3. Update `tailwind.config.ts`
 
-Add the toto-react source to the content scan so Tailwind includes classes used only in
-toto-react components:
+Replace the `./node_modules/toto-react/dist/**` path with the source path so Tailwind
+includes classes used only in toto-react components:
 
 ```ts
 content: [
