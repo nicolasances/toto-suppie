@@ -83,42 +83,44 @@ docker run -p 3000:3000 toto-suppie
 
 ## Deployment
 
-The app is built once by GitHub Actions and deployed to **two targets** during the transition to GKE: **Cloud Run** (by the workflow) and **GKE** (by Terraform, manually). Both run the same image.
+The app is built once by GitHub Actions and deployed to **two targets** during the transition to GKE: **Cloud Run** and **GKE**. Both run the same image, and both are deployed by the workflow.
 
-### Image build (GitHub Actions)
+Terraform ([toto-terra-gke](https://github.com/nicolasances/toto-terra-gke)) owns the *shape* of the GKE workload (Deployment, Service, route, resources, probes, env). CI owns *which image runs*: it runs `kubectl set image` and waits for `kubectl rollout status`. A later `terraform apply` doesn't revert the image.
 
-- **Dev** (`.github/workflows/release-dev.yml`, GitHub environment `dev`): triggered on push to `feature/**`, `issue/**`, `dev` or `main`.
-- **Prod** (`.github/workflows/release-prod.yml`, GitHub environment `prod`): triggered on push to `main`.
+### Branches and environments
+
+- **Dev** (`.github/workflows/release-dev.yml`, GitHub environment `dev`, namespace `dev`): triggered on push to `feature/**`, `issue/**` or `dev`.
+- **Prod** (`.github/workflows/release-prod.yml`, GitHub environment `prod`, namespace `prod`): triggered on push to `main`. `main` does **not** deploy to dev.
 - Changes to `docs/**` and Markdown files only don't trigger a release.
+- Deploys to the same environment are serialized (`concurrency` groups `deploy-dev` and `deploy-prod`).
 
-Each workflow builds the Docker image, pushes it to Artifact Registry as `europe-west1-docker.pkg.dev/<GCP project>/toto-react-supermarket/toto-react-supermarket:<version>` (where `<version>` is the `version` in `package.json`), and then deploys it to Cloud Run.
+Each workflow builds the Docker image, pushes it to Artifact Registry as `europe-west1-docker.pkg.dev/<GCP project>/toto-react-supermarket/toto-react-supermarket:<tag>`, deploys it to Cloud Run, then to GKE. The job fails if the GKE rollout doesn't complete within 5 minutes. There is no automatic rollback: push a fix or run `kubectl rollout undo`.
 
-The `NEXT_PUBLIC_*` variables (API endpoints, Google client ID) are **baked into the image at build time** from the GitHub environment secrets managed by [toto-terra](https://github.com/nicolasances/toto-terra) (`toto-react-supermarket.tf`). Changing an endpoint means re-running the workflow, not restarting the pods.
+The GKE project, cluster, location and namespace come from the GitHub environment variables `GKE_PROJECT_ID`, `GKE_CLUSTER_NAME`, `GKE_CLUSTER_LOCATION` and `GKE_NAMESPACE` (managed by [toto-terra](https://github.com/nicolasances/toto-terra)). Authentication uses the `toto-cicd` key (`CICD_SERVICE_ACCOUNT`).
 
-### Versioning: bump the version for every GKE release
+The `NEXT_PUBLIC_*` variables (API endpoints, Google client ID) are **baked into the image at build time** from the GitHub environment secrets managed by toto-terra (`toto-react-supermarket.tf`). Changing an endpoint means re-running the workflow, not restarting the pods.
 
-The image tag is the `package.json` `version`. **Bump it for every change you want to ship to GKE.** If you don't:
+### Image tags and versioning
 
-- the push overwrites the existing tag in Artifact Registry,
-- Terraform sees no change in the image tag, so nothing is redeployed,
-- the GKE pods keep running the old image (until they happen to restart and pull the overwritten tag).
-
-Cloud Run is redeployed by the workflow on every push either way.
+- **Dev:** `<package.json version>-<short sha>`, e.g. `1.0.0-a1b2c3d`. Every commit gets a unique tag, so **no version bump is needed on feature branches**. Re-running the job for the same commit skips the build and push and redeploys the existing image.
+- **Prod:** `<package.json version>` only. **Every merge to `main` needs a version bump**: before building, the workflow fails with "Bump the version in package.json" if the tag already exists in the prod registry.
 
 ### Deploying on GKE
 
 The app runs in the shared GKE Autopilot cluster, in the `dev` / `prod` namespaces, on its own hostname: `https://suppie.dev.dr.<domain>` (dev) and `https://suppie.dr.<domain>` (prod). The workload is defined in toto-terra-gke `workloads/toto-react-supermarket.tf`.
 
-1. **Release the image:** bump `version` in `package.json`, merge, and wait for the workflow to push the image.
-2. **toto-terra** (only when the infra changes): apply on both env projects (`totoexperiments`, `totolive`). It manages the endpoint secrets used at build time, read access to the registry for the GKE nodes, and the IAM roles of the pod's Workload Identity principal (used by the speech-to-text and text-to-speech API routes). If the endpoint secrets changed, re-run the workflow so the image is rebuilt.
+1. **Release the image:** push to a feature branch for dev; for prod, bump `version` in `package.json` and merge to `main`. The workflow deploys to GKE.
+2. **toto-terra** (only when the infra changes): apply on both env projects (`totoexperiments`, `totolive`). It manages the endpoint secrets used at build time, the GitHub environment variables, read access to the registry for the GKE nodes, and the IAM roles of the pod's Workload Identity principal (used by the speech-to-text and text-to-speech API routes). If the endpoint secrets changed, re-run the workflow so the image is rebuilt.
 3. **toto-terra-gke `cluster/`** (only when the hostnames/certificates change): apply, then wait for the certificate to be `ACTIVE`.
-4. **toto-terra-gke `workloads/`:** set the new version in `TF_VAR_toto_react_supermarket_image_tag` (e.g. `{"dev":"1.0.0","prod":"1.0.0"}`) and apply.
+4. **toto-terra-gke `workloads/`** (only when the Deployment shape changes): apply. The image is ignored by Terraform.
+
+To check what runs: `kubectl -n dev get deploy toto-react-supermarket -o jsonpath='{..image}'`.
 
 The pods are probed on `GET /api/health`, which returns `200 {"status":"ok"}`. The container listens on port `3000`.
 
 ### Image retention
 
-The GKE Deployment pins an image tag, so that tag must never be deleted from Artifact Registry, or the next pod restart fails to pull the image. The `toto-react-supermarket` registry has **no cleanup policy**: keep it that way, or use only a `KEEP most_recent_versions` rule, never a time-based `DELETE` rule (see toto-terra-gke `docs/operations.md`).
+The GKE Deployment pins an image tag, so a running tag must not be deleted from Artifact Registry, or the next pod restart fails to pull the image. The `toto-react-supermarket` registry has a cleanup policy that **keeps the 10 most recent versions** and deletes versions older than 7 days; the KEEP rule wins over the DELETE rule. Policy is managed in toto-terra. If a pod runs an older image than the 10 most recent, redeploy a current one (see toto-terra-gke `docs/operations.md`).
 
 ## Project Structure
 
