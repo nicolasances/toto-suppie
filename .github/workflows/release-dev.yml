@@ -2,41 +2,70 @@ name: Dev Release
 
 on:
   push:
-    branches: 
+    branches:
       - 'feature/**'
       - 'issue/**'
       - dev
-      - main
     paths-ignore:
       - 'docs/**'
       - '**.md'
 
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
 jobs:
-  # This workflow contains a single job called "release"
   release-dev:
-    name: Build & Deploy to Cloud run
+    name: Build & Deploy to Cloud Run and GKE
     environment: dev
     runs-on: ubuntu-latest
 
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v7
 
-    - name: Authenticate to Artifact Registry
-      run: |
-        echo '${{ secrets.CICD_SERVICE_ACCOUNT }}' > ./credentials.json
-        gcloud auth activate-service-account --key-file=./credentials.json
-        gcloud auth configure-docker europe-west1-docker.pkg.dev
-        rm ./credentials.json
-        
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v3
+      with:
+        credentials_json: ${{ secrets.CICD_SERVICE_ACCOUNT }}
+
+    - name: Setup GCloud
+      uses: google-github-actions/setup-gcloud@v3
+      with:
+        project_id: ${{ secrets.GCP_PID }}
+        install_components: gke-gcloud-auth-plugin
+
+    - name: Configure Docker for Artifact Registry
+      run: gcloud auth configure-docker europe-west1-docker.pkg.dev
+
     - name: Create Environment Variables
       run: |
-        export PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
-        export PACKAGE_NAME=$(cat package.json | grep name | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
+        PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
+        PACKAGE_NAME=$(cat package.json | grep name | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
         echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
         echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
 
+    - name: Compute image tag (<version>-<short sha>)
+      run: |
+        IMAGE_TAG=${PACKAGE_VERSION}-${GITHUB_SHA::7}
+        IMAGE=europe-west1-docker.pkg.dev/${{ secrets.GCP_PID }}/${PACKAGE_NAME}/${PACKAGE_NAME}:${IMAGE_TAG}
+        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+        echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+
+    - name: Check whether the image already exists
+      run: |
+        # Re-running the job for the same commit: skip build and push, just redeploy.
+        if OUT=$(gcloud artifacts docker images describe "$IMAGE" 2>&1); then
+          echo "Image $IMAGE already exists, skipping build and push."
+          echo "IMAGE_EXISTS=true" >> $GITHUB_ENV
+        elif echo "$OUT" | grep -qiE "not found|NOT_FOUND"; then
+          echo "IMAGE_EXISTS=false" >> $GITHUB_ENV
+        else
+          echo "::error::Could not check the image in Artifact Registry: $OUT"
+          exit 1
+        fi
+
     - name: Build Docker image
+      if: env.IMAGE_EXISTS != 'true'
       run: |
         docker build \
         --build-arg AUTH_API_ENDPOINT=${{ secrets.AUTH_API_ENDPOINT }} \
@@ -44,19 +73,24 @@ jobs:
         --build-arg GALE_BROKER_API_ENDPOINT=${{ secrets.GALE_BROKER_API_ENDPOINT }} \
         --build-arg WHISPERING_API_ENDPOINT=${{ secrets.WHISPERING_API_ENDPOINT }} \
         --build-arg GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
-        . -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PID }}/${{env.PACKAGE_NAME}}/${{env.PACKAGE_NAME}}:${{env.PACKAGE_VERSION}}
- 
-    - name: Push Docker image to Artifact Registry 
+        . -t $IMAGE
+
+    - name: Push Docker image to Artifact Registry
+      if: env.IMAGE_EXISTS != 'true'
+      run: docker push $IMAGE
+
+    - name: Deploy to Cloud Run
       run: |
-        docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PID }}/${{env.PACKAGE_NAME}}/${{env.PACKAGE_NAME}}:${{env.PACKAGE_VERSION}}
-    
-    - name: Setup GCloud 
-      uses: google-github-actions/setup-gcloud@v0
+        gcloud run deploy ${{ env.PACKAGE_NAME }} --project=${{ secrets.GCP_PID }} --service-account=${{ secrets.SERVICE_ACCOUNT }} --image=$IMAGE --platform=managed --region=europe-west1 --allow-unauthenticated
+
+    - name: Get GKE credentials
+      uses: google-github-actions/get-gke-credentials@v3
       with:
-        project_id: ${{ secrets.GCP_PID }}
-        service_account_key: ${{ secrets.CICD_SERVICE_ACCOUNT }}
-        export_default_credentials: true
-    
-    - name: Deploy image
-      run: | 
-        gcloud run deploy ${{env.PACKAGE_NAME}} --project=${{ secrets.GCP_PID }} --service-account=${{ secrets.SERVICE_ACCOUNT }} --image=europe-west1-docker.pkg.dev/${{ secrets.GCP_PID }}/${{env.PACKAGE_NAME}}/${{env.PACKAGE_NAME}}:${{env.PACKAGE_VERSION}} --platform=managed --region=europe-west1 --allow-unauthenticated
+        project_id: ${{ vars.GKE_PROJECT_ID }}
+        cluster_name: ${{ vars.GKE_CLUSTER_NAME }}
+        location: ${{ vars.GKE_CLUSTER_LOCATION }}
+
+    - name: Deploy to GKE
+      run: |
+        kubectl -n ${{ vars.GKE_NAMESPACE }} set image deployment/toto-react-supermarket toto-react-supermarket=$IMAGE
+        kubectl -n ${{ vars.GKE_NAMESPACE }} rollout status deployment/toto-react-supermarket --timeout=5m
